@@ -1,6 +1,6 @@
 {
   "name": "Monochrome Noir",
-  "description": "Estética B&W de alto contraste inspirada em arte e fotografia clássica",
+  "description": "inspired in the album cover 'punish, honey' by Vessel",
   "bg": "#050505",
   "bg_alt": "#0a0a0a",
   "panel": "#121212",
@@ -23,6 +23,6 @@
   "extras": {
     "header_text": "vonvakva's archive • noir edition",
     "header_text_color": "#8c8c8c",
-    "sidebar_text": "preservando no escuro :3"
+    "sidebar_text": "archiving in the dark"
   }
 }
