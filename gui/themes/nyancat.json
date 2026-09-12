@@ -1,0 +1,32 @@
+{
+  "name": "Nyan Cat",
+  "description": "Pop Tart Cat voando pelo espaço sideral trazendo um arco-íris de cores!",
+   "font": {
+    "family": "JetBrainsMono Nerd Font",
+    "size": 13
+  },
+  "bg": "#0e55a7",
+  "bg_alt": "#043164",
+  "panel": "#0a3d73",
+  "panel_alt": "#144880",
+  "border": "#1a5391",
+  "text": "#ffffff",
+  "muted": "#8fb3de",
+  "accent": "#ff3399",
+  "accent_hover": "#ff66b2",
+  "accent_pressed": "#cc0066",
+  "success": "#33cc33",
+  "danger": "#ff3333",
+  "warning": "#ff9900",
+  "console_bg": "#001a33",
+  "gif": {
+    "header": "",
+    "sidebar": "https://c.tenor.com/2roX3uxz_68AAAAC/tenor.gif",
+    "dashboard": ""
+  },
+  "extras": {
+    "header_text": "nyan nyan nyan nyan nyan...",
+    "header_text_color": "#ff99bb",
+    "sidebar_text": "~*~ NYAN CAT ~*~"
+  }
+}
