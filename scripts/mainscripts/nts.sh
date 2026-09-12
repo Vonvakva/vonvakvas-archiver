@@ -68,7 +68,6 @@ yt-dlp -f "bv*[height<=720][vcodec^=av01]+ba/bv*[height<=720]+ba/best" \
 --download-archive "$(config_path archive.txt)" \
 --concurrent-fragments 10 \
 --js-runtimes node \
---restrict-filenames \
 $EXTRA_FLAGS \
 -o "%(uploader)s/%(upload_date)s - %(title).150s [%(id)s].%(ext)s" \
 https://www.youtube.com/@"$CHANNEL_AT"
