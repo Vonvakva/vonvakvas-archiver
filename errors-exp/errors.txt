@@ -1,0 +1,20 @@
+Errors :3
+
+ERROR: [youtube] fp5aYEIUIDs: This video is available to this channel's members on level:
+Occurs when a video is restricted to channel members.
+
+Solution: There are two options:
+
+1. Become a channel member and start archiving member-only videos (paid)
+2. Ignore it and move on (free)
+
+==-==
+
+Multiple lines containing "googlevideo.com"
+"[https @ 0x5559aebc7200] Opening 'https://rr2---sn-uxj3apo3po4v-v2ne.googlevideo.com/videoplayback/id/ZWwogfzZjlk.1/itag/234/source/yt_live_broadcast/expire/1788086647/ei/F7WTauWdKv2N-LAPrau2cA/ip/<IP_REDACTED_FOR_SECURITY>/requiressl/yes/ratebypass/yes/live/1/goi/133/sgoap/gir%3Dyes%3Bitag%3D140/rqh/1/hls_chunk_host/rr2---sn-uxj3apo3po4v-v2ne.googlevideo.com/xpc/EgVo2aDSNQ%3D%"
+Occurs when you decide to archive right while a channel on the list is livestreaming.
+
+Solution: There are two options:
+
+1. Patience, you can let it archive the livestream if you want
+2. Temporarily comment out the channel's name in channel_list.txt
