@@ -1,6 +1,6 @@
 {
-  "name": "Terminal (fósforo verde)",
-  "description": "Homenagem ao homelab: verde fósforo sobre preto, estilo monitor CRT.",
+  "name": "Terminal",
+  "description": "Terminal CRT inspired theme",
   "bg": "#050a06",
   "bg_alt": "#081208",
   "panel": "#0b180d",

@@ -1,6 +1,6 @@
 {
-  "name": "Claro (papel)",
-  "description": "Tema claro minimalista para ambientes bem iluminados. O console continua escuro (legibilidade dos logs).",
+  "name": "Light",
+  "description": "Light version, the console stays black for readability",
   "bg": "#f5f6fa",
   "bg_alt": "#eceef4",
   "panel": "#ffffff",
