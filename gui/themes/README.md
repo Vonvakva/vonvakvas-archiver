@@ -1,15 +1,13 @@
-# Temas da GUI — documentação
+# GUI Themes — Documentation
 
-Cada arquivo `.json` nesta pasta é um tema da interface. A GUI lista
-todos automaticamente na aba **Temas** (nada precisa ser registrado em
-código — soltou um JSON aqui, o tema aparece).
+Each `.json` file in this directory represents an interface theme. The GUI automatically lists all available themes in the **Themes** tab (no manual registration in code is required — simply drop a JSON file here, and it appears in the app).
 
-## Formato de um tema
+## Theme Format
 
 ```json
 {
-  "name": "Nome bonito do tema",
-  "description": "Uma linha descrevendo a vibe do tema",
+  "name": "Pretty Theme Name",
+  "description": "One line describing the vibe of the theme",
   "bg": "#0d1017",
   "bg_alt": "#11151f",
   "panel": "#161b26",
@@ -35,123 +33,112 @@ código — soltou um JSON aqui, o tema aparece).
     "sidebar_text": ""
   }
 }
+
 ```
 
-- `name` e `description` são metadados exibidos na aba Temas.
-- O **id** do tema é o nome do arquivo sem `.json` (ex: `light.json` → id `light`).
-- Você **não precisa definir todas as chaves**: o que faltar herda do tema
-  padrão (`DEFAULT_COLORS` em `gui/theme.py`). Um tema que só quer mudar o
-  acento pode ter 3 linhas.
-- Chaves desconhecidas são ignoradas; JSON inválido faz o tema ser pulado
-  (a GUI nunca quebra por causa de um tema ruim).
+* `name` and `description` are metadata displayed in the Themes tab.
+* The theme **ID** is the filename without the `.json` extension (e.g., `light.json` → ID `light`).
+* You **do not need to define every key**: missing values fall back to the default theme (`DEFAULT_COLORS` in `gui/theme.py`). A theme that only changes the accent color can be as short as 3 lines.
+* Unknown keys are ignored; invalid JSON causes the theme to be skipped (the GUI will never crash due to a malformed theme file).
 
-## Os tokens
+## Theme Tokens
 
-| Token | Onde aparece |
-|---|---|
-| `bg` | Fundo geral da janela |
-| `bg_alt` | Sidebar, header, campos de texto, listas |
-| `panel` | Cards e painéis |
-| `panel_alt` | Botões normais, hover de itens |
-| `border` | Bordas de tudo |
-| `text` | Texto principal |
-| `muted` | Textos secundários/dicas |
-| `accent` / `accent_hover` / `accent_pressed` | Cor de destaque (botões principais, seleção, logo) |
-| `success` / `danger` / `warning` | Chips de status (OK / erro / aviso) |
-| `console_bg` | Fundo do console e do editor de arquivos |
+| Token | Where it appears |
+| --- | --- |
+| `bg` | Main window background |
+| `bg_alt` | Sidebar, header, input fields, lists |
+| `panel` | Cards and panels |
+| `panel_alt` | Default buttons, item hover states |
+| `border` | Borders across all UI elements |
+| `text` | Primary body text |
+| `muted` | Secondary text and helper tips |
+| `accent` / `accent_hover` / `accent_pressed` | Highlight color (primary buttons, selection highlights, logo) |
+| `success` / `danger` / `warning` | Status chips (OK / error / warning) |
+| `console_bg` | Console and file editor background |
 
-Os fundos translúcidos dos chips **não são definidos no tema**: são
-derivados de `success`/`danger`/`warning`/`accent` em tempo de execução
-(`_derived_tokens()` no `theme.py`). Então um tema claro automaticamente
-ganha chips claros.
+Translucent chip backgrounds are **not defined in the theme file**: they are derived dynamically from `success`/`danger`/`warning`/`accent` at runtime (`_derived_tokens()` in `theme.py`). Therefore, a light theme automatically gets bright, readable chips.
 
-## Decorações: GIFs, imagens e textos (opcionais)
+## Decorations: GIFs, Images, and Text (Optional)
 
-As seções `"gif"` e `"extras"` são **totalmente opcionais** — campo
-vazio (`""`) ou ausente é simplesmente ignorado. Um tema sem decorações
-funciona igualzinho.
+The `"gif"` and `"extras"` sections are **entirely optional** — empty strings (`""`) or missing keys are simply ignored. A theme without decorations functions identically.
 
-### Seção `"gif"` — animações/imagens
+### `"gif"` Section — Animations / Images
 
-| Slot | Onde aparece |
-|---|---|
-| `gif.header` | No header, à direita das infos do sistema |
-| `gif.sidebar` | Na sidebar, abaixo do logo "VONVAKVA'S" |
-| `gif.dashboard` | No Dashboard, alinhado à direita |
+| Slot | Where it appears |
+| --- | --- |
+| `gif.header` | Header area, to the right of system info |
+| `gif.sidebar` | Sidebar area, beneath the "VONVAKVA'S" logo |
+| `gif.dashboard` | Dashboard area, aligned to the right |
 
-Cada valor pode vir de **duas fontes**:
+Each slot supports **two sources**:
 
-1. **Internet** — uma URL direta:
-   ```json
-   "gif": { "sidebar": "https://media.tenor.com/xyz/za-hando.gif" }
-   ```
-   Baixada **uma vez só** para `config/gui_cache/` (nome por hash da URL,
-   então funciona offline depois da primeira vez e nada vai pro /tmp).
-   Funciona com GIF animado, PNG, JPG, WebP e BMP.
+1. **Remote URL** — a direct web URL:
+```json
+"gif": { "sidebar": "[https://media.tenor.com/xyz/za-hando.gif](https://media.tenor.com/xyz/za-hando.gif)" }
 
-2. **Arquivo** — o nome do arquivo, SEM caminho:
-   ```json
-   "gif": { "sidebar": "za_hando.gif" }
-   ```
-   Nesse caso o tema **precisa ter uma pasta com o MESMO NOME do json**
-   dentro de `gui/themes/`, e o arquivo mora lá:
-   ```
-   gui/themes/
-   ├── terminal.json
-   └── terminal/            ← pasta com o mesmo nome do json
-       └── za_hando.gif
-   ```
-   Se o arquivo não existir lá, a decoração simplesmente não aparece
-   (nada quebra).
+```
 
-### Seção `"extras"` — textos e cores
 
-| Chave | O que faz |
-|---|---|
-| `header_text` | Texto custom no header (ex: nome do arquivo, uma frase) |
-| `header_text_color` | Cor do `header_text` (hex, ex: `"#22d3ee"`) |
-| `sidebar_text` | Texto extra na sidebar, abaixo do logo |
+Downloaded **only once** to `config/gui_cache/` (saved using the URL hash as the filename, allowing offline persistence after the initial fetch). Supports animated GIFs, PNGs, JPGs, WebPs, and BMPs.
+2. **Local File** — filename ONLY, without path:
+```json
+"gif": { "sidebar": "za_hando.gif" }
 
-Exemplo:
+```
+
+
+Requires a **folder matching the JSON filename** inside `gui/themes/`:
+```text
+gui/themes/
+├── terminal.json
+└── terminal/            ← folder matching the JSON filename
+    └── za_hando.gif
+
+```
+
+
+If the file is missing, the decoration element simply hides (no error raised).
+
+### `"extras"` Section — Custom Text and Colors
+
+| Key | Description |
+| --- | --- |
+| `header_text` | Custom string displayed in the header (e.g., file label or tagline) |
+| `header_text_color` | Color for `header_text` (Hex format, e.g., `"#22d3ee"`) |
+| `sidebar_text` | Extra tagline in the sidebar, underneath the logo |
+
+Example:
+
 ```json
 "extras": {
-  "header_text": "arquivo pessoal • nao distribuir",
+  "header_text": "personal archive • do not distribute",
   "header_text_color": "#fbbf24",
-  "sidebar_text": "preservando desde 2024 :3"
+  "sidebar_text": "preserving since 2024 :3"
 }
+
 ```
 
-### Comportamento em caso de falha
+### Graceful Fallback
 
-URL fora do ar, arquivo inexistente ou formato inválido → o widget de
-decoração **some em silêncio**. Decoração nunca pode derrubar a GUI
-(a GUI abre normalmente mesmo com um tema inteiro quebrado).
+In the event of network timeouts, missing local files, or unparseable formats, the decoration widget **silently hides**. Visual decorations will never cause the main application to crash.
 
-## Como criar um tema novo (passo a passo)
+## Creating a New Theme (Step-by-Step)
 
-1. Copie o `default.json` para um arquivo novo, ex: `meutema.json`
-   (o id do tema vai ser `meutema`).
-2. Edite os valores que quiser. Dica: comece mudando só `accent`,
-   `accent_hover` e `accent_pressed` — muda a personalidade inteira.
-3. Ajuste `name` e `description`.
-4. Salve. Abra a GUI → aba **Temas** → clique em "Recarregar lista"
-   (ou reinicie) → selecione → **Aplicar tema**.
-5. O tema escolhido fica salvo em `config/gui_state.env`
-   (`GUI_THEME="meutema"`) e sobrevive a reinícios.
+1. Copy `default.json` into a new file, e.g., `mytheme.json` (the theme ID will be `mytheme`).
+2. Adjust any desired color values. Tip: Start by tweaking `accent`, `accent_hover`, and `accent_pressed` to quickly refresh the look.
+3. Update `name` and `description`.
+4. Save the file. In the GUI, navigate to the **Themes** tab → click **Reload list** (or restart the app) → select the theme → click **Apply theme**.
+5. The chosen selection persists in `config/gui_state.env` (`GUI_THEME="mytheme"`).
 
-## Prioridade de resolução (quem ganha de quem)
+## Theme Resolution Hierarchy (Order of Precedence)
 
-1. `DEFAULT_COLORS` (em `gui/theme.py`) — base de tudo
-2. `gui/themes/<ativo>.json` — sobrescreve o padrão
-3. `config/gui_theme.json` — **override manual**, tem a palavra final
-   (útil para testar uma cor sem criar arquivo; pode ser deletado quando
-   não quiser mais o override)
+1. `DEFAULT_COLORS` (defined in `gui/theme.py`) — Base default
+2. `gui/themes/<active>.json` — Overrides defaults
+3. `config/gui_theme.json` — **Manual override**, takes highest priority (useful for quick testing without creating a file; delete when done)
 
-## Dicas de contraste
+## Contrast Guidelines
 
-- `text` deve contrastar com `bg` e `panel` (é o texto de tudo).
-- `muted` fica em cima de `bg`/`panel` — não fique muito discreto.
-- Botões `accent` recebem texto **branco**: escolha um `accent` escuro
-  o suficiente (ou claro, no caso de temas claros) para isso.
-- O console usa `console_bg` com uma cor de texto fixa (#c9d4e8):
-  mantenha o console sempre escuro para os logs continuarem legíveis.
+* `text` must contrast well against `bg` and `panel`.
+* `muted` appears over `bg`/`panel` — keep it clear enough to read easily.
+* `accent` buttons feature **white** label text: select an `accent` value with sufficient contrast for light text.
+* The terminal panel uses `console_bg` alongside a fixed text color (`#c9d4e8`): keep `console_bg` dark to ensure log outputs remain legible.
