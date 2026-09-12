@@ -1,67 +1,67 @@
 """
-EXEMPLO DE EXTENSOES COM INTERACOES
+EXTENSIONS WITH INTERACTIONS EXAMPLE
 
-Este arquivo e um template (comeca com "_" entao e ignorado).
-Copie para criar sua propria extensao.
+This file is a template (starts with "_" so it is ignored).
+Copy it to create your own extension.
 
-Para testar: copie este arquivo sem o "_" no nome (ex: "meu_player.py")
-e recarregue as extensoes na GUI.
+To test: copy this file without the "_" in the name (e.g., "my_player.py")
+and reload the extensions in the GUI.
 """
 
-# Obrigatorio: nome exibido na GUI
-NAME = "Player Exemplo"
+# Required: name displayed in the GUI
+NAME = "Example Player"
 
-# Obrigatorio: onde mostrar ("header", "dashboard" ou ambos)
+# Required: where to display ("header", "dashboard", or both)
 WHERE = ["dashboard"]
 
-# Opcional: segundos entre atualizacoes (padrao: 5)
+# Optional: seconds between updates (default: 5)
 REFRESH = 3
 
-# Opcional: define botoes de interacao
+# Optional: defines interaction buttons
 INTERACTIONS = [
-    {"id": "prev", "label": "prev", "tooltip": "Faixa anterior"},
-    {"id": "play", "label": "play", "tooltip": "Tocar"},
-    {"id": "pause", "label": "pause", "tooltip": "Pausar"},
-    {"id": "next", "label": "next", "tooltip": "Proxima faixa"},
+    {"id": "prev", "label": "prev", "tooltip": "Previous track"},
+    {"id": "play", "label": "play", "tooltip": "Play"},
+    {"id": "pause", "label": "pause", "tooltip": "Pause"},
+    {"id": "next", "label": "next", "tooltip": "Next track"},
 ]
 
-# Estado interno da extensao (opcional)
+# Internal state of the extension (optional)
 _is_playing = False
-_current_track = "Nenhuma"
+_current_track = "None"
 
 
 def get_value():
     """
-    Obrigatorio: retorna o valor exibido na GUI.
-    Deve ser rapido (<100ms) - roda na thread da interface.
-    Retorna: (texto, estado) ou apenas texto
+    Required: returns the value displayed in the GUI.
+    Must be fast (<100ms) - runs on the interface thread.
+    Returns: (text, status) or just text
     """
     if _is_playing:
-        return (f"Tocando: {_current_track}", "ok")
-    return ("Parado", "muted")
+        return (f"Playing: {_current_track}", "ok")
+    return ("Stopped", "muted")
 
 
 def on_interaction(interaction_id: str, ext):
     """
-    Opcional: chamado quando usuario clica em um botao.
-    Recebe o id da acao e a extensao atual.
-    Retorna opcionalmente (novo_texto, novo_estado) para atualizar o display.
+    Optional: called when the user clicks a button.
+    Receives the action ID and the current extension instance.
+    Optionally returns (new_text, new_status) to update the display.
     """
     global _is_playing, _current_track
 
     if interaction_id == "play":
         _is_playing = True
-        _current_track = "Musica Exemplo"
-        return ("Tocando: Musica Exemplo", "ok")
+        _current_track = "Example Track"
+        return ("Playing: Example Track", "ok")
 
     elif interaction_id == "pause":
         _is_playing = False
-        return ("Pausado", "warn")
+        return ("Paused", "warn")
 
     elif interaction_id == "prev":
-        return ("Faixa anterior", "ok")
+        return ("Previous track", "ok")
 
     elif interaction_id == "next":
-        return ("Proxima faixa", "ok")
+        return ("Next track", "ok")
 
     return None
