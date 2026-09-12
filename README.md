@@ -1,459 +1,509 @@
-# Vonvakva's Archive - Documentação Técnica
+# Vonvakva's Archive - Technical Documentation
 
-Documentação técnica para usuários e contribuidores do projeto.
+Technical documentation for users and contributors of the project.
 
-## Índice
+## Table of Contents
 
-- [Instalação](#instalacao)
-- [Configuração](#configuracao)
-- [Interface Gráfica (GUI)](#interface-grafica-gui)
-- [Linha de Comando (CLI)](#linha-de-comando-cli)
-- [Estrutura de Pastas](#estrutura-de-pastas)
-- [Fluxos de Trabalho](#fluxos-de-trabalho)
-- [Referência de Comandos](#referencia-de-comandos)
-- [Dependências](#dependencias)
-- [Solução de Problemas](#solucao-de-problemas)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Graphical User Interface (GUI)](#graphical-user-interface-gui)
+- [Command Line Interface (CLI)](#command-line-interface-cli)
+- [Directory Structure](#directory-structure)
+- [Workflows](#workflows)
+- [Command Reference](#command-reference)
+- [Dependencies](#dependencies)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
-## Instalação
+## Installation
 
-### Requisitos
+### Requirements
 
-| Ferramenta | Obrigatório | Descrição |
-|------------|-------------|-----------|
-| python3 (>=3.10) | Sim | Runtime da GUI |
-| ffmpeg | Sim | Merge de vídeo/áudio |
-| node.js | Recomendado | Runtime do yt-dlp |
-| curl | Sim | Monitoramento de canais |
+| Tool | Required | Description |
+|------|----------|-------------|
+| python3 (>=3.10) | Yes | GUI Runtime |
+| ffmpeg | Yes | Video/audio merging |
+| node.js | Recommended | JS runtime for yt-dlp |
+| curl | Yes | Channel status monitoring |
 
-### Instalação Rápida
+### Quick Installation
 
 ```bash
 ./installer.sh
+
 ```
 
-Isso irá:
-1. Copiar o projeto para `~/.local/opt/vonvakvas-archive`
-2. Criar um ambiente virtual Python com as dependências
-3. Gerar arquivos de configuração iniciais
-4. Criar atalho no menu de aplicativos
+This will:
 
-### Instalação Manual
+1. Copy the project to `~/.local/opt/vonvakvas-archive`
+2. Create a Python virtual environment with required dependencies
+3. Generate initial configuration files
+4. Create an application menu shortcut
+
+### Manual Installation
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+
 ```
 
 ---
 
-## Configuração
+## Configuration
 
-### Arquivos de Configuração
+### Configuration Files
 
-Todos os arquivos de configuração ficam em `config/`:
+All configuration files reside in `config/`:
 
-| Arquivo | Finalidade |
-|---------|------------|
-| `channel_list.txt` | Lista de canais para arquivamento (um por linha, `#` para comentários) |
-| `archive.txt` | Histórico de vídeos baixados (gerenciado pelo yt-dlp) |
-| `cookies_1.txt` | Cookies da conta YouTube 1 (formato Netscape) |
-| `cookies_2.txt` | Cookies da conta YouTube 2 |
-| `cookies_3.txt` | Cookies da conta YouTube 3 |
-| `telegram.env` | Credenciais do bot Telegram |
-| `settings.env` | Configurações gerais (pasta dos canais) |
+| File | Purpose |
+| --- | --- |
+| `channel_list.txt` | List of channels to archive (one per line, `#` for comments) |
+| `archive.txt` | Downloaded video history log (managed by yt-dlp) |
+| `cookies_1.txt` | Cookies for YouTube Account 1 (Netscape format) |
+| `cookies_2.txt` | Cookies for YouTube Account 2 |
+| `cookies_3.txt` | Cookies for YouTube Account 3 |
+| `telegram.env` | Telegram bot credentials |
+| `settings.env` | General settings (channels directory) |
 
-### Configuração de Cookies
+### Cookie Setup
 
-Os cookies são usados para evitar bloqueios do YouTube. Para configurar:
+Cookies are used to prevent rate-limiting and blocks from YouTube. To configure:
 
-1. Acesse o YouTube logado em uma conta
-2. Exporte os cookies no formato Netscape (extensão "Get cookies.txt" recomendada)
-3. Salve em `config/cookies_1.txt` (ou 2/3 para contas adicionais)
+1. Log in to YouTube on your browser
+2. Export cookies in Netscape format (the "Get cookies.txt" extension is recommended)
+3. Save the file as `config/cookies_1.txt` (or 2/3 for additional accounts)
 
-O sistema sorteia aleatoriamente entre as contas configuradas para distribuir as requisições.
+The system randomly picks between configured accounts to distribute request load.
 
-### Configuração do Telegram (Opcional)
+### Telegram Setup (Optional)
 
 ```bash
 cp config/telegram.env.example config/telegram.env
+
 ```
 
-Edite o arquivo com suas credenciais:
+Edit the file with your credentials:
+
 ```env
-TELEGRAM_TOKEN=seu_token
-TELEGRAM_CHAT_ID=seu_chat_id
+TELEGRAM_TOKEN=your_token_here
+TELEGRAM_CHAT_ID=your_chat_id_here
+
 ```
 
-### Pasta dos Canais (HDD Externo)
+### Channels Directory (External HDD)
 
-Para usar uma pasta diferente da padrão (`your-directory/`):
+To use a path other than the default (`your-directory/`):
 
 ```bash
-# Edite config/settings.env
-CHANNELS_ROOT="/caminho/para/sua/pasta"
+# Edit config/settings.env
+CHANNELS_ROOT="/path/to/your/directory"
+
 ```
 
 ---
 
-## Interface Gráfica (GUI)
+## Graphical User Interface (GUI)
 
-### Iniciando
+### Launching
 
 ```bash
 ./start-gui.sh
+
 ```
 
-### Páginas
+### Views & Pages
 
 #### Dashboard
 
-Visão geral do arquivo com:
-- Número de canais na lista
-- Total de vídeos arquivados
-- Canais salvos antes de caírem
-- Pastas de canais existentes
-- Status das ferramentas (yt-dlp, ffmpeg, etc.)
-- Ações rápidas (verificar canais, arquivar em massa)
+Archive overview featuring:
 
-#### Arquivar
+* Number of channels on the list
+* Total archived videos
+* Channels saved before going offline
+* Existing channel folders
+* Tool status (yt-dlp, ffmpeg, etc.)
+* Quick actions (check channels, mass archive)
 
-Baixar do YouTube:
-- **Canal**: handle do YouTube (com ou sem @) — usa o comando `archive`
-- **Playlist**: URL completa da playlist — usa o comando `archive-playlist`
-- **Modo**: com cookies (rotatividade entre 3 contas) ou sem cookies (não marca como assistido)
-- **Botões**: "Baixar canal (archive)" ou "Baixar playlist (archive-playlist)"
+#### Archive
 
-#### Organizar
+Download content from YouTube:
 
-Organizar arquivos baixados em subpastas:
-- **Ações disponíveis**:
-  - Organizar (organize) — separa em descricao/, info_json/, thumbs/, pfp/, videos/
-  - Instagram (organize-instagram) — sem pasta pfp/
-  - Músicas (organize-music) — move para musicas/
-  - Desorganizar (desorganize) — reverte a organização
-  - Reverter músicas (desorganize-music) — reverte musicas/
-  - Preparar upload IA (prep) — cria estrutura ia/ para upload
+* **Channel**: YouTube handle (with or without `@`) — runs the `archive` command
+* **Playlist**: Full playlist URL — runs the `archive-playlist` command
+* **Mode**: With cookies (rotates through 3 accounts) or ghost mode without cookies (doesn't mark as watched)
+* **Buttons**: "Download Channel (archive)" or "Download Playlist (archive-playlist)"
 
-#### Upload IA
+#### Organize
 
-Enviar para o Internet Archive:
-- Valida se a pasta `ia/` existe
-- Solicita URL do canal para metadados
-- Identifier automático: `<pasta>-<data>`
-- Metadados: channel, creator, title, collection, mediatype
+Sort downloaded files into subdirectories:
+
+* **Available Actions**:
+* Organize (`organize`) — sorts into `descricao/`, `info_json/`, `thumbs/`, `pfp/`, `videos/`
+* Instagram (`organize-instagram`) — same structure without the `pfp/` folder
+* Music (`organize-music`) — moves files into `musicas/`
+* Undo Organize (`desorganize`) — restores files back to the root folder
+* Undo Music (`desorganize-music`) — restores files from `musicas/`
+* Prepare IA Upload (`prep`) — builds the `ia/` structure for upload
+
+
+
+#### IA Upload
+
+Upload content to the Internet Archive:
+
+* Verifies that the `ia/` directory exists
+* Requests channel URL for metadata entry
+* Generates automatic Identifier: `<folder>-<date>`
+* Populates metadata: channel, creator, title, collection, mediatype
 
 #### Monitor
 
-Verificar status dos canais:
-- Lista todos os canais da `channel_list.txt`
-- Testa HTTP 200 de cada canal
-- Envia alerta no Telegram se algum estiver offline
+Check current channel availability:
 
-#### Em Massa
+* Parses all channels from `channel_list.txt`
+* Performs HTTP 200 health checks for each entry
+* Triggers a Telegram alert if any channel returns an offline status
 
-Processar toda a lista de canais:
-- **Mass archive**: baixa todos os canais com sleep aleatório anti-bloqueio
-- **Mass organize**: organiza todas as pastas (respeita `.dirignore`)
+#### Mass Processing
+
+Batch process the entire list:
+
+* **Mass archive**: downloads all channels using random anti-ban sleep intervals
+* **Mass organize**: organizes all folders (respects `.dirignore`)
 
 #### Editor
 
-Editar arquivos de configuração diretamente pela GUI:
-- **Cookies (1, 2 e 3)**: editar cookies no formato Netscape
-- **Lista de canais**: editar `channel_list.txt`
-- **Telegram**: editar `telegram.env` (token e chat_id)
+Modify configuration files directly in the GUI:
 
-O editor usa o mesmo estilo do console (fundo escuro, fonte monoespaçada) e permite salvar com um clique.
+* **Cookies (1, 2, and 3)**: edit cookies in Netscape format
+* **Channel List**: edit `channel_list.txt`
+* **Telegram**: edit `telegram.env` (`token` and `chat_id`)
 
-#### Ajustes
+Uses a dark theme terminal style with monospaced font and one-click saving.
 
-Configurações do sistema:
-- Pasta dos canais (pode ser HDD externo)
-- Visualização de qual config está sendo usada (projeto vs pasta configurada)
-- Copiar configs do projeto para pasta externa
+#### Settings
 
-### Console
+System configuration options:
 
-O console na parte inferior mostra:
-- Saída em tempo real dos comandos
-- Status de execução
-- Botões: Limpar, Parar, Ocultar/Mostrar
+* Channels storage location (supports external HDDs)
+* Visual indicator for active configuration (Project directory vs. Configured directory)
+* Copy configuration files from project to an external path
+
+### Console View
+
+The lower terminal pane displays:
+
+* Real-time command output logs
+* Execution status updates
+* Quick actions: Clear, Stop, Hide/Show
 
 ---
 
-## Linha de Comando (CLI)
+## Command Line Interface (CLI)
 
-### Sintaxe
+### Syntax
 
 ```bash
-./vonvakvas.sh <comando> [opções]
+./vonvakvas.sh <command> [options]
+
 ```
 
-### Exemplos
+### Examples
 
 ```bash
-# Baixar um canal
+# Download a channel
 ./vonvakvas.sh archive lofigirl y
 
-# Organizar pasta
-./vonvakvas.sh organize ./pasta-do-canal
+# Organize a folder
+./vonvakvas.sh organize ./channel-folder
 
-# Verificar canais
+# Health-check channels
 ./vonvakvas.sh check
 
-# Arquivar toda a lista
+# Mass archive the list
 ./vonvakvas.sh mass-archive
+
 ```
 
 ---
 
-## Estrutura de Pastas
+## Directory Structure
 
-Após a organização, cada canal fica com a seguinte estrutura:
+After running the organizer, each channel directory will adhere to this structure:
 
 ```text
-nome-do-canal/
-├── descricao/          # Arquivos .description
-├── info_json/          # Arquivos .info.json
-├── pfp/                # Imagens de perfil (.jpg/.png)
-├── thumbs/             # Thumbnails (.webp)
-├── videos/             # Vídeos (.mp4/.mkv/.webm)
-└── ia/                 # (após prepare-upload)
-    ├── itemimage.jpg   # Capa do item
-    └── Videos/         # Cópia dos vídeos + metadados
+channel-name/
+├── descricao/          # .description files
+├── info_json/          # .info.json metadata files
+├── pfp/                # Profile picture files (.jpg/.png)
+├── thumbs/             # Video thumbnails (.webp)
+├── videos/             # Video files (.mp4/.mkv/.webm)
+└── ia/                 # (created after prepare-upload)
+    ├── itemimage.jpg   # Item cover image
+    └── Videos/         # Video copies + metadata
+
 ```
 
 ---
 
-## Fluxos de Trabalho
+## Workflows
 
-### 1. Download Simples
-
-```bash
-./vonvakvas.sh archive <canal> y
-```
-
-### 2. Download + Organização + Upload
+### 1. Basic Download
 
 ```bash
-./vonvakvas.sh archive <canal> y
-./vonvakvas.sh organize ./pasta-do-canal
-./vonvakvas.sh prepare-upload ./pasta-do-canal
-./vonvakvas.sh upload ./pasta-do-canal
+./vonvakvas.sh archive <channel> y
+
 ```
 
-### 3. Atualização em Massa
+### 2. Download + Organize + Upload
+
+```bash
+./vonvakvas.sh archive <channel> y
+./vonvakvas.sh organize ./channel-folder
+./vonvakvas.sh prepare-upload ./channel-folder
+./vonvakvas.sh upload ./channel-folder
+
+```
+
+### 3. Mass Sync
 
 ```bash
 ./vonvakvas.sh mass-archive
 ./vonvakvas.sh mass-organize
+
 ```
 
-### 4. Monitoramento
+### 4. Health Check Monitoring
 
 ```bash
 ./vonvakvas.sh check
+
 ```
 
 ---
 
-## Referência de Comandos
+## Command Reference
 
 ### archive (a)
 
-Baixa vídeos de um canal do YouTube.
+Downloads videos from a YouTube channel.
 
 ```bash
-./vonvakvas.sh archive <@canal> [y/n]
+./vonvakvas.sh archive <@channel> [y/n]
+
 ```
 
-| Parâmetro | Obrigatório | Descrição |
-|-----------|-------------|-----------|
-| `@canal` | Sim | Handle do YouTube |
-| `y / n` | Não (padrão: n) | y = usar cookies, n = modo fantasma |
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `@channel` | Yes | YouTube handle |
+| `y / n` | No (default: n) | `y` = use cookies, `n` = ghost mode |
 
-**Flags do yt-dlp:** até 720p, mp4, thumbnails, descrições, info.json, metadados embarcados.
+**yt-dlp flags:** Up to 720p, MP4 format, thumbnails, video descriptions, `.info.json`, and embedded metadata.
 
 ### archive-playlist (apl)
 
-Baixa uma playlist do YouTube. Aceita URL de playlist ou @handle do canal (ntsp = nts playlist).
+Downloads a YouTube playlist. Accepts a playlist URL or a channel `@handle`.
 
 ```bash
-./vonvakvas.sh archive-playlist <url-playlist> [y/n]
+./vonvakvas.sh archive-playlist <playlist-url> [y/n]
+
 ```
 
-| Parâmetro | Obrigatório | Descrição |
-|-----------|-------------|-----------|
-| `url-playlist` | Sim | URL completa da playlist |
-| `y / n` | Não (padrão: n) | y = usar cookies, n = modo fantasma |
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `playlist-url` | Yes | Complete playlist URL |
+| `y / n` | No (default: n) | `y` = use cookies, `n` = ghost mode |
 
 ### organize (org)
 
-Organiza arquivos em subpastas por tipo.
+Organizes media and metadata files into subfolders by type.
 
 ```bash
-./vonvakvas.sh organize <pasta>
+./vonvakvas.sh organize <directory>
+
 ```
 
-**Estrutura criada:** `descricao/`, `info_json/`, `thumbs/`, `pfp/`, `videos/`
+**Directory structure created:** `descricao/`, `info_json/`, `thumbs/`, `pfp/`, `videos/`
 
 ### organize-instagram (orgi)
 
-Organiza arquivos do Instagram (sem pasta `pfp/`).
+Organizes Instagram media (excludes `pfp/` directory).
 
 ```bash
-./vonvakvas.sh organize-instagram <pasta>
+./vonvakvas.sh organize-instagram <directory>
+
 ```
 
 ### organize-music (orgm)
 
-Organiza arquivos de música.
+Organizes audio and music files.
 
 ```bash
-./vonvakvas.sh organize-music <pasta>
+./vonvakvas.sh organize-music <directory>
+
 ```
 
-**Estrutura criada:** `descricao/`, `info_json/`, `thumbs/`, `pfp/`, `musicas/`
+**Directory structure created:** `descricao/`, `info_json/`, `thumbs/`, `pfp/`, `musicas/`
 
 ### desorganize (dorg)
 
-Reverte a organização (move tudo de volta para a raiz).
+Reverts organization (moves all files back to the root folder).
 
 ```bash
-./vonvakvas.sh desorganize <pasta>
+./vonvakvas.sh desorganize <directory>
+
 ```
 
 ### desorganize-music (dorgm)
 
-Reverte a organização de músicas.
+Reverts music directory organization.
 
 ```bash
-./vonvakvas.sh desorganize-music <pasta>
+./vonvakvas.sh desorganize-music <directory>
+
 ```
 
 ### prepare-upload (prep)
 
-Prepara a pasta organizada para upload no Internet Archive.
+Prepares an organized directory for Internet Archive upload.
 
 ```bash
-./vonvakvas.sh prepare-upload <pasta>
+./vonvakvas.sh prepare-upload <directory>
+
 ```
 
-**Requer:** pasta organizada com `videos/`, `descricao/`, `info_json/`  
-**Cria:** `ia/`, `ia/Videos/`, `ia/<canal>_itemimage.jpg`
+**Prerequisite:** Folder must be organized containing `videos/`, `descricao/`, and `info_json/`.
+
+**Generates:** `ia/`, `ia/Videos/`, and `ia/<channel>_itemimage.jpg`.
 
 ### upload (up)
 
-Faz upload para o Internet Archive.
+Uploads content to the Internet Archive.
 
 ```bash
-./vonvakvas.sh upload <pasta>
+./vonvakvas.sh upload <directory>
+
 ```
 
-**Requer:** pasta `ia/` (criada pelo prepare-upload), CLI `ia` instalada e configurada.
+**Prerequisite:** Requires an `ia/` directory (created via `prepare-upload`) and an installed/authenticated `ia` CLI tool.
 
-**Metadados automáticos:**
-- `channel`: URL do canal
-- `creator`: nome do canal
-- `title`: "<canal> archive"
-- `collection`: opensource_movies
-- `mediatype`: movies
-- `subject`: youtube;youtuber;youtube-preservation;youtube-videos;asmr
+**Automatic Metadata:**
+
+* `channel`: Channel URL
+* `creator`: Channel Name
+* `title`: " archive"
+* `collection`: opensource_movies
+* `mediatype`: movies
+* `subject`: youtube;youtuber;youtube-preservation;youtube-videos;asmr
 
 ### check (c)
 
-Verifica status HTTP dos canais da lista.
+Performs HTTP status checks on all channels listed in `channel_list.txt`.
 
 ```bash
 ./vonvakvas.sh check
+
 ```
 
-Envia alerta no Telegram se algum canal retornar código diferente de 200.
+Sends Telegram alerts if any target channel returns a non-200 status code.
 
 ### mass-archive (ma)
 
-Baixa todos os canais da `channel_list.txt`.
+Downloads content for all channels defined in `channel_list.txt`.
 
 ```bash
 ./vonvakvas.sh mass-archive
+
 ```
 
-**Características:**
-- Sleep aleatório entre downloads (2-10 segundos)
-- Usa mesma regra de cookies para todo o lote
-- Ignora comentários e linhas em branco na lista
+**Features:**
+
+* Random sleep intervals (2–10 seconds) between tasks to avoid rate-limiting
+* Applies cookie settings uniformly across the batch
+* Ignores comments (`#`) and empty lines automatically
 
 ### mass-organize (mo)
 
-Organiza todas as pastas do diretório atual.
+Organizes all directories in the current working location.
 
 ```bash
 ./vonvakvas.sh mass-organize
+
 ```
 
-**Respeita:** arquivo `.dirignore` (pastas listadas são ignoradas).
+**Note:** Honors `.dirignore` rules (folders listed will be skipped).
 
 ---
 
-## Dependências
+## Dependencies
 
 ### Python (requirements.txt)
 
-| Pacote | Versão | Finalidade |
-|--------|--------|------------|
-| PySide6 | >=6.6 | Interface gráfica Qt |
-| psutil | >=5.9 | Gerenciamento de processos |
-| yt-dlp | latest | Download de vídeos |
-| internetarchive | latest | Upload para IA |
+| Package | Version | Purpose |
+| --- | --- | --- |
+| PySide6 | >=6.6 | Qt Graphical Interface |
+| psutil | >=5.9 | Process management |
+| yt-dlp | latest | Video processing & downloading |
+| internetarchive | latest | Internet Archive API wrapper |
 
-### Sistema
+### System Tools
 
-| Ferramenta | Finalidade |
-|------------|------------|
-| ffmpeg | Merge vídeo/áudio |
-| node.js | Runtime JavaScript (yt-dlp) |
-| curl | Requisições HTTP |
+| Tool | Purpose |
+| --- | --- |
+| ffmpeg | Video and audio remuxing |
+| node.js | JS Engine runtime for yt-dlp |
+| curl | HTTP requests and network checks |
 
 ---
 
-## Solução de Problemas
+## Troubleshooting
 
-### Erro: "This video is available to this channel's members"
+### Error: "This video is available to this channel's members"
 
-**Causa:** Vídeo exclusivo para membros do canal.  
-**Solução:** Torne-se membro ou ignore (o vídeo não será baixado).
+**Cause:** Video is restricted to channel members.
 
-### Erro: Muitas linhas "googlevideo.com"
+**Solution:** Purchase a membership or ignore the warning (the script will skip the video).
 
-**Causa:** O canal está fazendo LIVE no momento do download.  
-**Solução:**
-1. Espere a live terminar e rode novamente
-2. Ou comente o canal no `channel_list.txt` temporariamente
+### Issue: Logs showing multiple continuous "googlevideo.com" lines
 
-### Erro: "Permission denied"
+**Cause:** The targeted channel is streaming live at the moment of download.
+
+**Solution:**
+
+1. Wait for the livestream to end and re-run the job
+2. Temporarily comment out the channel in `channel_list.txt`
+
+### Error: "Permission denied"
+
+Grant executable permissions to entry scripts:
 
 ```bash
 chmod +x vonvakvas.sh start-gui.sh
+
 ```
 
-### Erro: "command not found: yt-dlp"
+### Error: "command not found: yt-dlp"
+
+Ensure `yt-dlp` is installed in your active environment:
 
 ```bash
 pip install yt-dlp
-# ou
+# or
 pip install -r requirements.txt
+
 ```
 
-### Upload falha
+### Upload Fails
 
-1. Verifique se a pasta `ia/` existe (rode `prepare-upload` primeiro)
-2. Verifique se a CLI `ia` está instalada: `ia --version`
-3. Configure suas credenciais: `ia configure`
+1. Ensure `ia/` exists (run `prepare-upload` first)
+2. Verify the Internet Archive CLI installation: `ia --version`
+3. Check user authentication setup: `ia configure`
 
-### GUI não inicia
+### GUI Fails to Start
 
-1. Verifique se o ambiente virtual está ativado
-2. Verifique se o PySide6 está instalado: `pip list | grep PySide6`
-3. Tente iniciar com debug: `python gui/main.py`
+1. Confirm the Python virtual environment is activated
+2. Ensure PySide6 is installed: `pip list | grep PySide6`
+3. Launch directly with debug output enabled: `python gui/main.py`
