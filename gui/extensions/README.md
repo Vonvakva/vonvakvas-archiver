@@ -1,133 +1,117 @@
-# Extensões da GUI — documentação
+# GUI Extensions — Documentation
 
-Extensões são widgets custom feitos em Python: um `.py` nesta pasta
-coleta uma informação (do sistema, de um arquivo, de onde quiser) e a
-GUI mostra no **header** (chip compacto) e/ou no **dashboard** (cartão
-grande), atualizando de tempos em tempos.
+Extensions are custom Python widgets: a single `.py` file in this folder collects data (from system metrics, files, or any source) for display in the GUI's **header** (compact chip) and/or **dashboard** (large card), periodically updating on a set interval.
 
-> ⚠️ **Segurança:** extensão é código rodando na sua máquina, com seu
-> usuário — mesmo nível de confiança dos scripts Bash em `scripts/`.
-> Só coloque aqui `.py` que você escreveu ou confia.
+> ⚠️ **Security Warning:** Extensions run code directly on your system under your user permissions — equivalent in security scope to the Bash scripts in `scripts/`. Only run `.py` files that you wrote yourself or explicitly trust.
 
-## Contrato de uma extensão
+## Extension Contract
 
 ```python
-# gui/extensions/meu_widget.py
+# gui/extensions/my_widget.py
 
-NAME = "Nome exibido"             # obrigatório (str)
+NAME = "Display Name"            # Required (str)
 
-WHERE = ["header", "dashboard"]   # obrigatório: "header", "dashboard"
-                                  # ou os dois
+WHERE = ["header", "dashboard"]   # Required: "header", "dashboard", or both
 
-REFRESH = 5                       # opcional: segundos entre leituras
-                                  # (padrão 5, mínimo 1, máximo 3600)
+REFRESH = 5                       # Optional: refresh interval in seconds
+                                  # (Default: 5, Min: 1, Max: 3600)
 
 def get_value():
-    # obrigatório: retorna (texto, estado)
+    # Required: returns (text, status)
     return ("42°C", "warn")
+
 ```
 
 ### `get_value()`
 
-- Retorna `(texto, estado)` — ou só o texto (o estado vira `"ok"`).
-- **Estados** (coloridos com o tema ativo):
-  - `"ok"` — verde (chip verde no header / normal no dashboard)
-  - `"warn"` — amarelo
-  - `"bad"` — vermelho
-  - `"muted"` — neutro
-- **Deve ser rápido** (~<100ms): roda na thread da interface. Ler
-  arquivo, chamar psutil, subprocess com timeout curto — ok. Baixar
-  coisa da internet dentro do `get_value` — não (use cache e atualize
-  por fora).
+* Returns a tuple `(text, status)` — or a plain text string (defaulting status to `"ok"`).
+* **Status Options** (dynamically styled according to the active theme):
+* `"ok"` — Green (green chip in header / standard card in dashboard)
+* `"warn"` — Yellow
+* `"bad"` — Red
+* `"muted"` — Neutral / Gray
 
-## Regras da pasta
 
-| Regra | Efeito |
-|---|---|
-| Só `*.py` é lido | Outros arquivos são ignorados |
-| Nome começando com `_` | **Não carrega** (use para templates — veja `_exemplo.py`) |
-| Erro de sintaxe/import | Extensão pulada + aviso na aba Extensões |
-| `get_value()` dando erro | Widget mostra "erro" (vermelho); a GUI segue de pé |
-| Falta `NAME`/`WHERE`/`get_value` | Extensão pulada + aviso |
+* **Performance Requirement:** Execution must be fast (~<100ms) as it runs on the UI thread. Reading local files, parsing `psutil` data, or running fast subprocess commands with short timeouts is fine. Fetching live network data directly inside `get_value()` is **not recommended** (use background caching mechanisms instead).
 
-`id` da extensão = nome do arquivo sem `.py` (é o que aparece no
-`EXT_DISABLED` do `config/gui_state.env`).
+## Extension Directory Rules
 
-## Gerenciando pela GUI
+| Rule | Behavior |
+| --- | --- |
+| Only `*.py` files are parsed | All other file types are skipped |
+| Filenames starting with `_` | **Ignored** (used for templates, e.g., `_exemplo.py`) |
+| Syntax / Import errors | Extension is skipped + warning shown in the Extensions tab |
+| Unhandled exception in `get_value()` | Widget displays "error" (red); GUI continues running |
+| Missing `NAME`, `WHERE`, or `get_value` | Extension is skipped + warning shown |
 
-Aba **Extensões**:
-- Lista tudo que carregou, com o último valor de cada uma
-- **Ativar/Desativar** — persiste em `config/gui_state.env`
-  (`EXT_DISABLED="id1,id2"`); desativada sai do header/dashboard mas
-  continua na lista
-- **Recarregar** — re-escaneia a pasta (depois de criar/editar um `.py`)
-- **Abrir pasta** — abre no gerenciador de arquivos
+The extension **ID** is the filename without `.py` (this ID corresponds to entries in `EXT_DISABLED` within `config/gui_state.env`).
 
-No terminal: `VONVAKVAS_*` não interfere; desativar manualmente é só
-editar o `EXT_DISABLED` (ou tirar o arquivo da pasta).
+## Managing Extensions via GUI
 
-## Exemplo passo a passo (temperatura fictícia da GPU)
+Navigate to the **Extensions** tab to:
 
-1. `gui/extensions/gpu_temp.py`:
-   ```python
-   NAME = "GPU"
-   WHERE = ["header"]
-   REFRESH = 10
+* Inspect all loaded extensions alongside their latest reported values.
+* **Enable / Disable** extensions (saved to `config/gui_state.env` via `EXT_DISABLED="id1,id2"`). Disabled extensions are removed from the header/dashboard view while remaining in the list.
+* **Reload** — Rescan the folder for changes after creating or modifying a `.py` file.
+* **Open Folder** — Open the extension directory in your file manager.
 
-   def get_value():
-       with open("/sys/class/drm/card0/temp1_input") as f:
-           milli = int(f.read().strip())
-       c = milli // 1000
-       if c > 85:
-           return (f"{c}°C", "bad")
-       if c > 70:
-           return (f"{c}°C", "warn")
-       return (f"{c}°C", "ok")
-   ```
-2. Aba Extensões → **Recarregar** → aparece na lista → ativa por padrão.
-3. O chip "GPU: 62°C" aparece no header, verde/amarelo/vermelho conforme
-   a temperatura, usando as cores do tema ativo.
+## Step-by-Step Example (Fictional GPU Temperature Monitor)
 
-Dica: o `_exemplo.py` da pasta é um modelo pronto e funcional (mostra
-há quanto tempo a GUI está aberta) — copie, renomeie e edite.
+1. Create `gui/extensions/gpu_temp.py`:
+```python
+NAME = "GPU"
+WHERE = ["header"]
+REFRESH = 10
 
-## Interações (Botões)
+def get_value():
+    with open("/sys/class/drm/card0/temp1_input") as f:
+        milli = int(f.read().strip())
+    c = milli // 1000
+    if c > 85:
+        return (f"{c}°C", "bad")
+    if c > 70:
+        return (f"{c}°C", "warn")
+    return (f"{c}°C", "ok")
 
-Para adicionar botões clicáveis:
+```
+
+
+2. Open GUI Extensions Tab → Click **Reload** → The extension appears and is enabled by default.
+3. The chip "GPU: 62°C" appears in the header with color indicators matching the active theme.
+
+*Tip: `_exemplo.py` in the extensions folder serves as a working template (tracks GUI uptime) — feel free to copy and edit it.*
+
+## Button Interactions
+
+To add clickable UI action controls:
 
 ```python
 INTERACTIONS = [
-    {"id": "play", "label": "▶", "tooltip": "Tocar"},
-    {"id": "pause", "label": "⏸", "tooltip": "Pausar"},
+    {"id": "play", "label": "▶", "tooltip": "Play"},
+    {"id": "pause", "label": "⏸", "tooltip": "Pause"},
 ]
 
 def on_interaction(interaction_id: str, ext):
     if interaction_id == "play":
-        return ("Tocando...", "ok")
+        return ("Playing...", "ok")
     return None
+
 ```
 
-## Estados Válidos
+## Valid Status Types
 
-- `"ok"` - Verde (tudo certo)
-- `"warn"` - Amarelo (atenção)
-- `"bad"` - Vermelho (erro)
-- `"muted"` - Cinza (neutro/inativo)
+* `"ok"` — Green (Healthy)
+* `"warn"` — Yellow (Warning)
+* `"bad"` — Red (Error)
+* `"muted"` — Gray (Neutral / Inactive)
 
-## Sandbox
+## Execution & Sandbox Environment
 
-- Timeout de 5 segundos para `get_value()` e `on_interaction()`
-- Execução em thread separada (não trava a GUI)
-- Extensões com erro NUNCA derrubam a GUI
+* 5-second execution timeout enforced for `get_value()` and `on_interaction()`
+* Asynchronous thread execution prevents UI freezing
+* Extension runtime errors will **never** crash the main application thread
 
-## Regras
-
-- Arquivos começando com `_` são ignorados (templates)
-- `get_value()` deve ser rápido (<100ms)
-- Use subprocess para operações longas
-- Extensões são recarregadas ao clicar "Recarregar" na GUI
-
-## Exemplo Completo: Player de Música
+## Complete Example: Music Player Extension
 
 ```python
 import subprocess
@@ -137,42 +121,44 @@ WHERE = ["dashboard"]
 REFRESH = 2
 
 INTERACTIONS = [
-    {"id": "prev", "label": "⏮", "tooltip": "Anterior"},
-    {"id": "play", "label": "▶", "tooltip": "Tocar"},
-    {"id": "pause", "label": "⏸", "tooltip": "Pausar"},
-    {"id": "next", "label": "⏭", "tooltip": "Próxima"},
+    {"id": "prev", "label": "⏮", "tooltip": "Previous"},
+    {"id": "play", "label": "▶", "tooltip": "Play"},
+    {"id": "pause", "label": "⏸", "tooltip": "Pause"},
+    {"id": "next", "label": "⏭", "tooltip": "Next"},
 ]
 
 _is_playing = False
 
 def get_value():
     if _is_playing:
-        return ("Tocando", "ok")
-    return ("Parado", "muted")
+        return ("Playing", "ok")
+    return ("Stopped", "muted")
 
 def on_interaction(interaction_id, ext):
     global _is_playing
     if interaction_id == "play":
         subprocess.Popen(["mpc", "play"])
         _is_playing = True
-        return ("Tocando", "ok")
+        return ("Playing", "ok")
     elif interaction_id == "pause":
         subprocess.Popen(["mpc", "pause"])
         _is_playing = False
-        return ("Pausado", "warn")
+        return ("Paused", "warn")
     return None
 
-## Nerd Fonts e Ícones
+```
 
-A GUI suporta **Nerd Fonts**! Você pode usar ícones Unicode nos labels dos botões e no texto das extensões.
+## Nerd Fonts & Custom Icons
 
-### Configurando uma Nerd Font
+The GUI natively supports **Nerd Fonts**! Unicode icons can be used in button labels and widget text outputs.
 
-No arquivo de tema JSON (`gui/themes/<id>.json`), adicione a seção `font`:
+### Configuring a Nerd Font
+
+In your active theme JSON file (`gui/themes/<id>.json`), configure the `font` parameters:
 
 ```json
 {
-    "name": "Meu Tema",
+    "name": "My Theme",
     "font": {
         "family": "JetBrainsMono Nerd Font",
         "size": 13
@@ -182,34 +168,35 @@ No arquivo de tema JSON (`gui/themes/<id>.json`), adicione a seção `font`:
         "accent": "#8b5cf6"
     }
 }
+
 ```
 
-### Nerd Fonts Populares
+### Popular Nerd Font Families
 
-- `JetBrainsMono Nerd Font`
-- `FiraCode Nerd Font`
-- `Hack Nerd Font`
-- `SourceCodePro Nerd Font` (CodeNewRoman)
-- `UbuntuMono Nerd Font`
+* `JetBrainsMono Nerd Font`
+* `FiraCode Nerd Font`
+* `Hack Nerd Font`
+* `SourceCodePro Nerd Font`
+* `UbuntuMono Nerd Font`
 
-### Exemplo com Ícones Nerd Font
+### Example Using Nerd Font Glyphs
 
 ```python
 NAME = "🎵 Player"
 WHERE = ["dashboard"]
 
 INTERACTIONS = [
-    {"id": "prev", "label": "󰒮", "tooltip": "Anterior"},
-    {"id": "play", "label": "󰐊", "tooltip": "Tocar"},
-    {"id": "pause", "label": "󰏤", "tooltip": "Pausar"},
-    {"id": "next", "label": "󰒭", "tooltip": "Próxima"},
+    {"id": "prev", "label": "󰒮", "tooltip": "Previous"},
+    {"id": "play", "label": "󰐊", "tooltip": "Play"},
+    {"id": "pause", "label": "󰏤", "tooltip": "Pause"},
+    {"id": "next", "label": "󰒭", "tooltip": "Next"},
 ]
+
 ```
 
-### Compatibilidade
+### Font Compatibility Matrix
 
-- ✅ Unicode padrão (▶, ⏸, ⏮, ⏭) - funciona em qualquer fonte
-- ✅ Emojis (🎵, 🔥, 💾) - funciona se a fonte suportar emoji
-- ✅ Ícones Nerd Font (󰒮, 󰐊) - funciona se a Nerd Font estiver configurada no tema
-- ⚠️ Se a fonte não tiver o glifo, aparece um quadrado vazio ou ponto de interrogação
-```	
+* ✅ **Standard Unicode Symbols** (▶, ⏸, ⏮, ⏭) — Supported across system fonts
+* ✅ **Emojis** (🎵, 🔥, 💾) — Rendered properly if system font has emoji support
+* ✅ **Nerd Font Glyphs** (󰒮, 󰐊) — Requires a Nerd Font configured in theme settings
+* ⚠️ If the configured font lacks a glyph, a fallback rectangle or question mark will render
