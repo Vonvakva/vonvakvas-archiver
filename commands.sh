@@ -282,6 +282,19 @@ cmd_mass_archive() {
 }
 
 # ============================================
+# COMMAND: mass-archive-names
+# Downloads every channel in the list, full variant (ntsn.sh)
+# Usage: vonvakvas mass-archive-names
+# ============================================
+cmd_mass_archive_names() {
+    echo "=================================================="
+    echo " VONVAKVA'S MASS ARCHIVE NAMES - Archiving the list..."
+    echo "=================================================="
+
+    bash "$(script_path masses/mass_ntsn.sh)"
+}
+
+# ============================================
 # COMMAND: mass-organize
 # Organizes every channel folder
 # Usage: vonvakvas mass-organize
@@ -361,6 +374,11 @@ COMMANDS:
     mass-archive, ma
         Downloads every channel in the list (channel_list.txt)
         Ex: vonvakvas mass-archive
+
+    mass-archive-names, man
+        Downloads every channel in the list, full variant (ntsn.sh):
+        original names + manual subtitles + comments
+        Ex: vonvakvas mass-archive-names
 
     mass-organize, mo
         Organizes every channel folder
