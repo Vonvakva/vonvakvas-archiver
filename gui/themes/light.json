@@ -1,0 +1,28 @@
+{
+  "name": "Claro (papel)",
+  "description": "Tema claro minimalista para ambientes bem iluminados. O console continua escuro (legibilidade dos logs).",
+  "bg": "#f5f6fa",
+  "bg_alt": "#eceef4",
+  "panel": "#ffffff",
+  "panel_alt": "#eef0f6",
+  "border": "#d5dae5",
+  "text": "#1c2230",
+  "muted": "#6b7488",
+  "accent": "#6d28d9",
+  "accent_hover": "#7c3aed",
+  "accent_pressed": "#5b21b6",
+  "success": "#16a34a",
+  "danger": "#dc2626",
+  "warning": "#d97706",
+  "console_bg": "#1e222d",
+  "gif": {
+    "header": "",
+    "sidebar": "",
+    "dashboard": ""
+  },
+  "extras": {
+    "header_text": "",
+    "header_text_color": "",
+    "sidebar_text": ""
+  }
+}

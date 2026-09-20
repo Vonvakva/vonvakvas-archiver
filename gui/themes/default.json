@@ -1,0 +1,32 @@
+{
+  "name": "Padrão (dark violeta)",
+  "description": "O tema original da GUI: dark minimalista com acento violeta.",
+  "font": {
+    "family": "JetBrainsMono Nerd Font",
+    "size": 13
+  },
+  "bg": "#0d1017",
+  "bg_alt": "#11151f",
+  "panel": "#161b26",
+  "panel_alt": "#1d2432",
+  "border": "#262e40",
+  "text": "#e8ebf2",
+  "muted": "#8a93a8",
+  "accent": "#8b5cf6",
+  "accent_hover": "#a78bfa",
+  "accent_pressed": "#7c3aed",
+  "success": "#4ade80",
+  "danger": "#f87171",
+  "warning": "#fbbf24",
+  "console_bg": "#0a0d13",
+  "gif": {
+    "header": "",
+    "sidebar": "",
+    "dashboard": ""
+  },
+  "extras": {
+    "header_text": "",
+    "header_text_color": "",
+    "sidebar_text": ""
+  }
+}

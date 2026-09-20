@@ -1,0 +1,28 @@
+{
+  "name": "Rag Doll 1964",
+  "description": "Estética retro pop inspirada no álbum clássico de 1964 do The 4 Seasons",
+  "bg": "#0a0c10",
+  "bg_alt": "#121620",
+  "panel": "#181d2a",
+  "panel_alt": "#22293b",
+  "border": "#2d374d",
+  "text": "#ffffff",
+  "muted": "#ffd000",
+  "accent": "#0099ff",
+  "accent_hover": "#33adff",
+  "accent_pressed": "#007acc",
+  "success": "#ffd000",
+  "danger": "#ff599c",
+  "warning": "#ffaa00",
+  "console_bg": "#07090d",
+  "gif": {
+    "header": "",
+    "sidebar": "",
+    "dashboard": ""
+  },
+  "extras": {
+    "header_text": "rag doll • featuring 10 brand new archiver features",
+    "header_text_color": "#ff599c",
+    "sidebar_text": "on broadway tonight!"
+  }
+}

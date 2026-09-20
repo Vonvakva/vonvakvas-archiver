@@ -1,0 +1,13 @@
+# Ambientes virtuais e cache
+venv/
+__pycache__/
+*.pyc
+
+# Dados sensíveis e configs pessoais
+config/cookies_*.txt
+config/gui_state.env
+config/gui_cache/
+
+# Arquivos baixados e temporários
+*.log
+/tmp/

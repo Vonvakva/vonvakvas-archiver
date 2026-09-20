@@ -1,0 +1,28 @@
+{
+  "name": "Terminal (fósforo verde)",
+  "description": "Homenagem ao homelab: verde fósforo sobre preto, estilo monitor CRT.",
+  "bg": "#050a06",
+  "bg_alt": "#081208",
+  "panel": "#0b180d",
+  "panel_alt": "#102414",
+  "border": "#1c3a22",
+  "text": "#c8f5cd",
+  "muted": "#5f8a66",
+  "accent": "#4ade80",
+  "accent_hover": "#86efac",
+  "accent_pressed": "#22c55e",
+  "success": "#4ade80",
+  "danger": "#f87171",
+  "warning": "#fbbf24",
+  "console_bg": "#020402",
+  "gif": {
+    "header": "",
+    "sidebar": "",
+    "dashboard": ""
+  },
+  "extras": {
+    "header_text": "",
+    "header_text_color": "",
+    "sidebar_text": ""
+  }
+}

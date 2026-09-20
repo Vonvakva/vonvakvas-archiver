@@ -1,0 +1,28 @@
+{
+  "name": "Monochrome Noir",
+  "description": "Estética B&W de alto contraste inspirada em arte e fotografia clássica",
+  "bg": "#050505",
+  "bg_alt": "#0a0a0a",
+  "panel": "#121212",
+  "panel_alt": "#1a1a1a",
+  "border": "#2e2e2e",
+  "text": "#ffffff",
+  "muted": "#8c8c8c",
+  "accent": "#d4d4d4",
+  "accent_hover": "#ffffff",
+  "accent_pressed": "#a3a3a3",
+  "success": "#a3e635",
+  "danger": "#f87171",
+  "warning": "#fbbf24",
+  "console_bg": "#050505",
+  "gif": {
+    "header": "",
+    "sidebar": "",
+    "dashboard": ""
+  },
+  "extras": {
+    "header_text": "vonvakva's archive • noir edition",
+    "header_text_color": "#8c8c8c",
+    "sidebar_text": "preservando no escuro :3"
+  }
+}

@@ -1,0 +1,20 @@
+erros :3
+
+ERROR: [youtube] fp5aYEIUIDs: This video is available to this channel's members on level:
+acontece quando um video é somente para membros
+
+solução: existem duas:
+
+1, voce se torna membro do canal e começa a arquivar os videos member-only (paga)
+2, voce ignora e segue a vida (de graça)
+
+==-==
+
+varias linhas contendo "googlevideo.com"
+"[https @ 0x5559aebc7200] Opening 'https://rr2---sn-uxj3apo3po4v-v2ne.googlevideo.com/videoplayback/id/ZWwogfzZjlk.1/itag/234/source/yt_live_broadcast/expire/1788086647/ei/F7WTauWdKv2N-LAPrau2cA/ip/<IP_REDIGIDO_POR_SEGURANCA>/requiressl/yes/ratebypass/yes/live/1/goi/133/sgoap/gir%3Dyes%3Bitag%3D140/rqh/1/hls_chunk_host/rr2---sn-uxj3apo3po4v-v2ne.googlevideo.com/xpc/EgVo2aDSNQ%3D%"
+acontece quando voce decide archivar bem na hora que um canal da lista esta fazendo uma live
+
+solução: existem duas:
+
+1, paciencia, voce pode deixar arquivar a live se quiser
+2, comentar o nome do canal temporariamente no lista_canais.txt
