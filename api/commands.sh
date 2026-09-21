@@ -72,6 +72,36 @@ cmd_organize() {
 }
 
 # ============================================
+# COMMAND: archive-names
+# Downloads videos from a YouTube channel, full variant (ntsn.sh):
+# original Windows-safe filenames + manual subtitles + comments
+# Usage: vonvakvas archive-names <@channel> [y/n]
+# ============================================
+cmd_archive_names() {
+    local channel="$1"
+    local mask="${2:-n}"
+
+    if [[ -z "$channel" ]]; then
+        echo "Error: specify the channel @handle"
+        echo "Usage: vonvakvas archive-names <@channel> [y/n]"
+        echo "  y = use cookies (random account between 1, 2 and 3)"
+        echo "  n = do not count view (no cookies)"
+        exit 1
+    fi
+
+    # Removes the @ if the user includes it
+    channel="${channel#@}"
+
+    echo "=================================================="
+    echo " VONVAKVA'S ARCHIVE NAMES - Channel: @$channel"
+    echo " Cookies: $([ "$mask" = "y" ] && echo "Active (random account)" || echo "Disabled (do not count view)")"
+    echo "=================================================="
+
+    # Calls the full-variant download script
+    bash "$(script_path mainscripts/ntsn.sh)" "$channel" "$mask"
+}
+
+# ============================================
 # COMMAND: archive-playlist (nts playlist = ntsp.sh)
 # Alternative variant of archive for playlists/URLs (ntsp.sh)
 # Usage: vonvakvas archive-playlist <@channel|URL> [y/n]
@@ -252,6 +282,19 @@ cmd_mass_archive() {
 }
 
 # ============================================
+# COMMAND: mass-archive-names
+# Downloads every channel in the list, full variant (ntsn.sh)
+# Usage: vonvakvas mass-archive-names
+# ============================================
+cmd_mass_archive_names() {
+    echo "=================================================="
+    echo " VONVAKVA'S MASS ARCHIVE NAMES - Archiving the list..."
+    echo "=================================================="
+
+    bash "$(script_path masses/mass_ntsn.sh)"
+}
+
+# ============================================
 # COMMAND: mass-organize
 # Organizes every channel folder
 # Usage: vonvakvas mass-organize
@@ -283,6 +326,11 @@ COMMANDS:
         y = use cookies (random account between 1, 2 and 3)
         n = do not count view (no cookies)
         Ex: vonvakvas archive lofigirl y
+
+    archive-names, an <@channel> [y/n]
+        Full-variant download (ntsn.sh): Windows-safe original
+        filenames + manual subtitles + comments (no auto-subs)
+        Ex: vonvakvas archive-names lofigirl y
 
     organize, org <folder>
         Sorts files into subfolders (videos, thumbs, etc)
@@ -327,6 +375,11 @@ COMMANDS:
         Downloads every channel in the list (channel_list.txt)
         Ex: vonvakvas mass-archive
 
+    mass-archive-names, man
+        Downloads every channel in the list, full variant (ntsn.sh):
+        original names + manual subtitles + comments
+        Ex: vonvakvas mass-archive-names
+
     mass-organize, mo
         Organizes every channel folder
         Ex: vonvakvas mass-organize
@@ -353,6 +406,9 @@ WORKFLOWS:
 
     Simple download:
         vonvakvas archive <channel> y
+
+    Full download (original names + subs + comments):
+        vonvakvas archive-names <channel> y
 
     Download + Organize + Upload:
         vonvakvas archive <channel> y

@@ -7,9 +7,11 @@ set -uo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../lib/common.sh"
 
 # organizer.sh - Sorts the channel files into subfolders by type
-# (descricao/, info_json/, thumbs/, pfp/, videos/).
+# (descricao/, info_json/, thumbs/, pfp/, videos/, subs/).
 # NOTE: "descricao/" keeps its legacy Portuguese name on purpose: renaming it
 # would break existing archives, ia/ bundles, backend checks and docs.
+# "subs/" holds manual subtitle files (.vtt/.srt/.ass/.ssa/.lrc), e.g. from
+# the archive-names (ntsn.sh) full variant.
 # Run inside the channel folder.
 
 export WORKDIR=$(pwd)
@@ -42,6 +44,14 @@ mv "$WORKDIR"/*[Cc]hannel*.png pfp/ 2>/dev/null
 # Third: any other .jpg/.png that is not a thumb (thumbs are .webp)
 mv "$WORKDIR"/*.jpg pfp/ 2>/dev/null
 mv "$WORKDIR"/*.png pfp/ 2>/dev/null
+
+# --- SUBS ---
+mkdir -p "$WORKDIR"/subs
+mv "$WORKDIR"/*.vtt subs/ 2>/dev/null
+mv "$WORKDIR"/*.srt subs/ 2>/dev/null
+mv "$WORKDIR"/*.ass subs/ 2>/dev/null
+mv "$WORKDIR"/*.ssa subs/ 2>/dev/null
+mv "$WORKDIR"/*.lrc subs/ 2>/dev/null
 
 # --- VIDEOS ---
 mkdir -p "$WORKDIR"/videos

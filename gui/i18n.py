@@ -180,6 +180,15 @@ _T: dict[str, dict[str, str]] = {
     "dash.btn_mass_tip": {"pt": "Abre o diálogo de Mass archive da página Em massa",
                           "es": "Abre el diálogo de Mass archive de la página En masa",
                           "en": "Opens the Mass archive dialog from the Bulk page"},
+    "dash.btn_mass_names": {"pt": "Mass archive - nomes leais (lista inteira)",
+                            "es": "Mass archive - nombres leales (lista entera)",
+                            "en": "Mass archive - loyal names (whole list)"},
+    "dash.btn_mass_names_tip": {"pt": "Baixa a lista inteira na variante completa (nomes originais + legendas + comentários)",
+                                "es": "Descarga la lista entera en la variante completa (nombres originales + subtítulos + comentarios)",
+                                "en": "Downloads the whole list in the full variant (original names + subtitles + comments)"},
+    "mass.btn_archive_names": {"pt": "Mass archive - loyal names (lista inteira)",
+                               "es": "Mass archive - loyal names (lista entera)",
+                               "en": "Mass archive - loyal names (whole list)"},
     "dash.tool_ok": {"pt": "{name} ✓ instalado", "es": "{name} ✓ instalado",
                      "en": "{name} ✓ installed"},
     "dash.tool_missing": {"pt": "{name} ✗ ausente/fora do PATH",
@@ -442,6 +451,10 @@ _T: dict[str, dict[str, str]] = {
                             "pt": "Baixar Playlist (archive-playlist)",
                             "es": "Descargar Playlist (archive-playlist)",
                             "en": "Download Playlist (archive-playlist)"},
+    "archive.btn_names": {  # ntsn = nts names (full variant)
+                            "pt": "Baixar Nomes (archive-names)",
+                            "es": "Descargar Nombres (archive-names)",
+                            "en": "Download Names (archive-names)"},
     "archive.warn_title": {"pt": "Arquivar", "es": "Archivar", "en": "Archive"},
     "archive.warn_no_canal": {"pt": "Digite o @ do canal primeiro.",
                               "es": "Escribe el @ del canal primero.",
@@ -461,6 +474,12 @@ _T: dict[str, dict[str, str]] = {
                                  "variante alternativa — acepta handle o URL completa del canal",
                            "en": "• archive-playlist (ntsp = nts playlist): "
                                  "alternative variant — accepts handle or full channel URL"},
+    "archive.note_line2b": {"pt": "• archive-names (ntsn = nts names): "
+                                  "variante completa — nomes originais, legendas manuais e comentários",
+                            "es": "• archive-names (ntsn = nts names): "
+                                  "variante completa — nombres originales, subtítulos manuales y comentarios",
+                            "en": "• archive-names (ntsn = nts names): "
+                                  "full variant — original names, manual subtitles and comments"},
     "archive.note_line3": {"pt": "• Com cookies: sorteia uma das 3 contas "
                                  "(cookies_1/2/3.txt); sem cookies: os vídeos não "
                                  "são marcados como assistidos",

@@ -29,6 +29,14 @@ mv "$WORKDIR"/*.info.json info_json/ 2>/dev/null
 mkdir -p "$WORKDIR"/thumbs
 mv "$WORKDIR"/*.webp thumbs/ 2>/dev/null
 
+# --- SUBS ---
+mkdir -p "$WORKDIR"/subs
+mv "$WORKDIR"/*.vtt subs/ 2>/dev/null
+mv "$WORKDIR"/*.srt subs/ 2>/dev/null
+mv "$WORKDIR"/*.ass subs/ 2>/dev/null
+mv "$WORKDIR"/*.ssa subs/ 2>/dev/null
+mv "$WORKDIR"/*.lrc subs/ 2>/dev/null
+
 # --- VIDEOS ---
 mkdir -p "$WORKDIR"/videos
 mv "$WORKDIR"/*.mp4 videos/ 2>/dev/null

@@ -17,6 +17,9 @@ route_command() {
         archive|a)
             cmd_archive "$@"
             ;;
+        archive-names|an)
+            cmd_archive_names "$@"
+            ;;
         organize|org)
             cmd_organize "$@"
             ;;
@@ -46,6 +49,9 @@ route_command() {
             ;;
         mass-archive|ma)
             cmd_mass_archive "$@"
+            ;;
+        mass-archive-names|man)
+            cmd_mass_archive_names "$@"
             ;;
         mass-organize|mo)
             cmd_mass_organize "$@"

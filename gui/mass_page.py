@@ -43,9 +43,12 @@ class MassPage(QWidget):
         self.btn_mass_archive = QPushButton(i18n.tr("mass.btn_archive"))
         self.btn_mass_archive.setObjectName("danger")
         self.btn_mass_archive.clicked.connect(self._run_archive)
+        self.btn_mass_names = QPushButton(i18n.tr("mass.btn_archive_names"))
+        self.btn_mass_names.clicked.connect(self._run_archive_names)
         self.btn_mass_organize = QPushButton(i18n.tr("mass.btn_organize"))
         self.btn_mass_organize.clicked.connect(self._run_organize)
         row2.addWidget(self.btn_mass_archive)
+        row2.addWidget(self.btn_mass_names)
         row2.addWidget(self.btn_mass_organize)
         row2.addStretch()
         self.actions_card.body().addLayout(row2)
@@ -58,6 +61,7 @@ class MassPage(QWidget):
         self._set_title(self.warn_card, i18n.tr("mass.warn_title"))
         self._set_title(self.actions_card, i18n.tr("mass.actions_title"))
         self.btn_mass_archive.setText(i18n.tr("mass.btn_archive"))
+        self.btn_mass_names.setText(i18n.tr("mass.btn_archive_names"))
         self.btn_mass_organize.setText(i18n.tr("mass.btn_organize"))
         self.refresh()
 
@@ -79,12 +83,19 @@ class MassPage(QWidget):
 
     def set_busy(self, busy: bool):
         self.btn_mass_archive.setEnabled(not busy)
+        self.btn_mass_names.setEnabled(not busy)
         self.btn_mass_organize.setEnabled(not busy)
 
     def _run_archive(self):
+        self._run_mass("mass-archive")
+
+    def _run_archive_names(self):
+        self._run_mass("mass-archive-names")
+
+    def _run_mass(self, cmd: str):
         n = len(backend.read_channel_list())
         box = QMessageBox(self)
-        box.setWindowTitle("Mass archive")
+        box.setWindowTitle(cmd)
         box.setText(i18n.tr("mass.box_text", n=n))
         btn_cookies = box.addButton(i18n.tr("mass.box_cookies"), QMessageBox.AcceptRole)
         btn_ghost = box.addButton(i18n.tr("mass.box_ghost"), QMessageBox.AcceptRole)
@@ -97,10 +108,10 @@ class MassPage(QWidget):
             mask = "n"
         else:
             return
-        # mass_nts.sh pergunta a máscara via `read -p`: injetamos a resposta.
+        # mass_nts.sh / mass_ntsn.sh perguntam a máscara via `read -p`: injetamos a resposta.
         # cwd = pasta dos canais para que os downloads caiam lá.
         self.runner.run(
-            ["mass-archive"], stdin_data=f"{mask}\n", cwd=backend.channels_dir()
+            [cmd], stdin_data=f"{mask}\n", cwd=backend.channels_dir()
         )
 
     def _run_organize(self):

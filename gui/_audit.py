@@ -9,6 +9,7 @@ test_keys = [
     # dash.* (dashboard retranslate)
     "dash.stats.channels", "dash.sub.channels", "dash.quick_card",
     "dash.btn_check", "dash.btn_mass", "dash.btn_mass_tip",
+    "dash.btn_mass_names", "dash.btn_mass_names_tip",
     "dash.btn_monitor", "dash.quick_note", "dash.dirs_em",
     "dash.profile_default", "dash.disk_total", "dash.dirs_hint_full",
     "dash.tool_ok", "dash.tool_missing", "dash.ext_refresh",

@@ -24,9 +24,10 @@ mv "$WORKDIR"/info_json/* "$WORKDIR"/ 2>/dev/null
 mv "$WORKDIR"/thumbs/* "$WORKDIR"/ 2>/dev/null
 mv "$WORKDIR"/pfp/* "$WORKDIR"/ 2>/dev/null
 mv "$WORKDIR"/videos/* "$WORKDIR"/ 2>/dev/null
+mv "$WORKDIR"/subs/* "$WORKDIR"/ 2>/dev/null
 
 # Removes the empty folders
-rmdir "$WORKDIR"/descricao "$WORKDIR"/info_json "$WORKDIR"/thumbs "$WORKDIR"/pfp "$WORKDIR"/videos 2>/dev/null
+rmdir "$WORKDIR"/descricao "$WORKDIR"/info_json "$WORKDIR"/thumbs "$WORKDIR"/pfp "$WORKDIR"/videos "$WORKDIR"/subs 2>/dev/null
 
 # Animation
 echo ...

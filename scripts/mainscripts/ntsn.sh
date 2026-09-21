@@ -1,7 +1,9 @@
 #!/bin/bash
-# scripts/mainscripts/nts.sh
-# Downloads videos from a YouTube channel (@handle) via yt-dlp.
-# Usage: nts.sh <channel> <y/n>  (y = use random cookies_1/2/3.txt, n = ghost mode)
+# scripts/mainscripts/ntsn.sh
+# Downloads videos from a YouTube channel (@handle) via yt-dlp (full archive variant).
+# Variant "n" (names): keeps Windows-safe original filenames, plus manual
+# subtitles, embedded subs and comments (no auto-subs).
+# Usage: ntsn.sh <channel> <y/n>  (y = use random cookies_1/2/3.txt, n = ghost mode)
 
 # Hardening: undefined variables and broken pipes do not pass silently
 set -uo pipefail
@@ -12,10 +14,10 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../lib/common.sh"
 # --- ARGUMENT VALIDATION ---
 if [ -z "${1:-}" ] || [ -z "${2:-}" ]; then
     echo "Error: insufficient arguments."
-    echo "Correct usage: nts.sh <channel> <y/n>"
+    echo "Correct usage: ntsn.sh <channel> <y/n>"
     echo "  y = use cookies (random account between 1, 2 and 3)"
     echo "  n = do not count view (videos are not marked as watched)"
-    echo "Example: nts.sh LofiGirl y"
+    echo "Example: ntsn.sh LofiGirl y"
     exit 1
 fi
 
@@ -63,16 +65,21 @@ yt-dlp -f "bv*[height<=720][vcodec^=av01]+ba/bv*[height<=720]+ba/best" \
 --write-description \
 --write-info-json \
 --embed-metadata \
+--write-comments \
+--write-subs \
+--no-write-auto-subs \
+--embed-subs \
+--sponsorblock-mark -filler,-music_offtopic,-poi_highlight \
+--windows-filenames \
 --yes-playlist \
 --continue \
 --download-archive "$(config_path archive.txt)" \
 --concurrent-fragments 10 \
 --js-runtimes node \
---restrict-filenames \
+--extractor-retries 10 \
 $EXTRA_FLAGS \
 -o "%(uploader)s/%(upload_date)s - %(title).150s [%(id)s].%(ext)s" \
 https://www.youtube.com/@"$CHANNEL_AT"
-
 echo "=================================================="
 echo " Download finished for @$CHANNEL_AT."
 echo "=================================================="

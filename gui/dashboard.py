@@ -111,10 +111,14 @@ class DashboardPage(QWidget):
         self.btn_mass = QPushButton(i18n.tr("dash.btn_mass"))
         self.btn_mass.setToolTip(i18n.tr("dash.btn_mass_tip"))
         self.btn_mass.clicked.connect(self._run_mass)
+        self.btn_mass_names = QPushButton(i18n.tr("dash.btn_mass_names"))
+        self.btn_mass_names.setToolTip(i18n.tr("dash.btn_mass_names_tip"))
+        self.btn_mass_names.clicked.connect(self._run_mass_names)
         self.btn_monitor = QPushButton(i18n.tr("dash.btn_monitor"))
         self.btn_monitor.clicked.connect(lambda: self.main.show_page("monitor"))
         self.quick_card.body().addWidget(self.btn_check)
         self.quick_card.body().addWidget(self.btn_mass)
+        self.quick_card.body().addWidget(self.btn_mass_names)
         self.quick_card.body().addWidget(self.btn_monitor)
         self.quick_note = QLabel(i18n.tr("dash.quick_note"))
         self.quick_note.setObjectName("muted")
@@ -152,6 +156,8 @@ class DashboardPage(QWidget):
         self.btn_check.setText(i18n.tr("dash.btn_check"))
         self.btn_mass.setText(i18n.tr("dash.btn_mass"))
         self.btn_mass.setToolTip(i18n.tr("dash.btn_mass_tip"))
+        self.btn_mass_names.setText(i18n.tr("dash.btn_mass_names"))
+        self.btn_mass_names.setToolTip(i18n.tr("dash.btn_mass_names_tip"))
         self.btn_monitor.setText(i18n.tr("dash.btn_monitor"))
         self.quick_note.setText(i18n.tr("dash.quick_note"))
         self.refresh()
@@ -208,6 +214,7 @@ class DashboardPage(QWidget):
     def set_busy(self, busy: bool):
         self.btn_check.setEnabled(not busy)
         self.btn_mass.setEnabled(not busy)
+        self.btn_mass_names.setEnabled(not busy)
 
     def rebuild_decorations(self):
         """Gif do tema no dashboard (slot gif.dashboard), se configurado."""
@@ -291,3 +298,7 @@ class DashboardPage(QWidget):
     def _run_mass(self):
         # Reaproveita o diálogo da página Em massa (pergunta a mascara)
         self.main.pages["mass"]._run_archive()
+
+    def _run_mass_names(self):
+        # Reaproveita o diálogo da página Em massa, variante completa (ntsn)
+        self.main.pages["mass"]._run_archive_names()

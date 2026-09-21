@@ -1,4 +1,4 @@
-"""Página Arquivar: archive e archive-playlist (nts.sh / ntsp.sh via CLI)."""
+"""Página Arquivar: archive, archive-names e archive-playlist (nts/ntsn/ntsp via CLI)."""
 
 from __future__ import annotations
 
@@ -57,8 +57,11 @@ class ArchivePage(QWidget):
         self.btn_archive.clicked.connect(self._run_normal)
         self.btn_playlist = QPushButton(i18n.tr("archive.btn_playlist"))
         self.btn_playlist.clicked.connect(self._run_playlist)
+        self.btn_names = QPushButton(i18n.tr("archive.btn_names"))
+        self.btn_names.clicked.connect(self._run_names)
         btn_row.addWidget(self.btn_archive)
         btn_row.addWidget(self.btn_playlist)
+        btn_row.addWidget(self.btn_names)
         btn_row.addStretch()
         self.card.body().addLayout(btn_row)
 
@@ -80,6 +83,7 @@ class ArchivePage(QWidget):
         self.mode_combo.setToolTip(i18n.tr("archive.tooltip"))
         self.btn_archive.setText(i18n.tr("archive.btn_normal"))
         self.btn_playlist.setText(i18n.tr("archive.btn_playlist"))
+        self.btn_names.setText(i18n.tr("archive.btn_names"))
         # recargar nombres de modos sin perder la selección
         selected = self._selected_mode()
         self.mode_combo.blockSignals(True)
@@ -106,6 +110,7 @@ class ArchivePage(QWidget):
         self.note.setText(
             i18n.tr("archive.note_line1") + "\n"
             + i18n.tr("archive.note_line2") + "\n"
+            + i18n.tr("archive.note_line2b") + "\n"
             + i18n.tr("archive.note_line3") + "\n"
             + i18n.tr("archive.note_perfil",
                       perfil=perfil or i18n.tr("common.default_profile"),
@@ -120,20 +125,23 @@ class ArchivePage(QWidget):
         return "n"
 
     def _run_normal(self):
-        self._run(playlist=False)
+        self._run("archive")
 
     def _run_playlist(self):
-        self._run(playlist=True)
+        self._run("archive-playlist")
 
-    def _run(self, playlist: bool):
+    def _run_names(self):
+        self._run("archive-names")
+
+    def _run(self, cmd: str):
         canal = self.canal_edit.text().strip().lstrip("@")
         if not canal:
             QMessageBox.warning(self, i18n.tr("archive.warn_title"),
                                 i18n.tr("archive.warn_no_canal"))
             return
-        args = ["archive-playlist" if playlist else "archive", canal, self._selected_mode()]
+        args = [cmd, canal, self._selected_mode()]
         # cwd = pasta dos canais (HDD externo se configurado) para que os
-        # downloads caiam la (nts.sh usa o diretorio atual como destino)
+        # downloads caiam la (nts.sh / ntsn.sh usam o diretorio atual como destino)
         ok = self.runner.run(args, cwd=backend.channels_dir())
         if not ok:
             QMessageBox.information(self, i18n.tr("busy.title"),
@@ -142,3 +150,4 @@ class ArchivePage(QWidget):
     def set_busy(self, busy: bool):
         self.btn_archive.setEnabled(not busy)
         self.btn_playlist.setEnabled(not busy)
+        self.btn_names.setEnabled(not busy)
