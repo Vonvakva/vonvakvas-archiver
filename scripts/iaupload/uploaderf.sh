@@ -48,7 +48,7 @@ ia upload "$itemname" "$WORKDIR"/ia/ \
   --metadata="title:$channel archive" \
   --metadata="collection:opensource_movies" \
   --metadata="mediatype:movies" \
-  --metadata="scanner:Vonvakva's Archive" \
+  --metadata="scanner:Vonvakva's Archiver" \
   --metadata="subject:youtube;youtuber;youtube-preservation;youtube-videos;asmr"
 
 status=$?

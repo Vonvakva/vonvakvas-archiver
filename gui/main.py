@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         sv.setSpacing(6)
         logo = QLabel("Vonvakva's")
         logo.setObjectName("logo")
-        sub = QLabel("Archive")
+        sub = QLabel("Archiver")
         sub.setObjectName("logoSub")
         self.logo_lbl = logo  # ref para retranslate_all() preservar a marca
         self.sub_lbl = sub  # ref para retranslate_all() preservar a marca
