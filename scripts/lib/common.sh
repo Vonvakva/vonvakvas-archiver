@@ -26,6 +26,23 @@ export PROJECT_ROOT="$(detect_project_root)"
 
 export VONVAKVAS_PROFILE="${VONVAKVAS_PROFILE:-}"
 
+# Default profile fallback: when the environment does not specify one, use
+# the profile selected in the GUI (config/gui_state.env -> GUI_PROFILE).
+# The CLI writes the same key (see 'vonvakvas profile use'), so the CLI and
+# the GUI always agree on the active profile.
+if [[ -z "$VONVAKVAS_PROFILE" && -f "$PROJECT_ROOT/config/gui_state.env" ]]; then
+    _gp="$(grep -E '^[[:space:]]*GUI_PROFILE[[:space:]]*=' "$PROJECT_ROOT/config/gui_state.env" | head -n 1 | cut -d= -f2- || true)"
+    _gp="${_gp#"${_gp%%[![:space:]]*}"}"
+    _gp="${_gp%"${_gp##*[![:space:]]}"}"
+    _gp="${_gp#\"}"
+    _gp="${_gp%\"}"
+    _gp="${_gp#\'}"
+    _gp="${_gp%\'}"
+    VONVAKVAS_PROFILE="$_gp"
+    unset _gp
+fi
+export VONVAKVAS_PROFILE
+
 # Returns the active profile directory (empty if no profile is active)
 # NOTE: defined BEFORE the legacy migration below, which relies on it.
 profile_dir() {

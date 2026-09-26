@@ -233,25 +233,31 @@ def write_editor_file(name: str, content: str) -> Path:
 
 
 # ---------------------------------------------------------------------------
-# Profiles: definitions (the _active_profile variable is loaded at the end of the module)
+# Profiles: definitions (the active profile lives in config/gui_state.env —
+# shared with the CLI, see 'vonvakvas profile use')
 # ---------------------------------------------------------------------------
 
 def active_profile() -> str | None:
-    """Active profile name (None = use the project default config/)."""
-    return _active_profile
+    """Active profile name (None = use the project default config/).
+
+    Re-reads config/gui_state.env on every call: the CLI can switch the
+    profile (vonvakvas profile use) while the GUI is open, and both sides
+    must always agree on the active one.
+    """
+    return _load_active_profile()
 
 
 def set_active_profile(name: str | None) -> None:
-    """Sets the active profile and persists it to config/gui_state.env (GUI-only).
+    """Sets the active profile and persists it to config/gui_state.env.
 
-    Preserves the other lines of the file (e.g. GUI_THEME from the theme system).
+    That file is shared with the CLI ('vonvakvas profile use' writes the same
+    GUI_PROFILE key), so both sides always agree. Preserves the other lines of
+    the file (e.g. GUI_THEME from the theme system).
     """
-    global _active_profile
-    _active_profile = (name or "").strip() or None
     _set_env_value(
         GUI_STATE_FILE,
         "GUI_PROFILE",
-        _active_profile or "",
+        (name or "").strip(),
         "# GUI state (active profile / theme). Interface-only file.\n",
     )
 
@@ -279,7 +285,7 @@ def list_profiles() -> list[str]:
 
 def profile_dir(name: str | None = None) -> Path | None:
     """Profile path (active, if name=None). None if no profile."""
-    target = name if name is not None else _active_profile
+    target = name if name is not None else active_profile()
     if not target:
         return None
     return PROFILES_DIR / target
@@ -319,7 +325,7 @@ def create_profile(name: str, copy_base: bool = True) -> Path:
 
 
 def delete_profile(name: str) -> None:
-    if name == _active_profile:
+    if name == active_profile():
         raise ValueError("Cannot delete the active profile.")
     shutil.rmtree(PROFILES_DIR / name)
 
@@ -454,7 +460,7 @@ def _apply_child_env(proc: QProcess) -> None:
        END of the PATH (so it never shadows the project venv yt-dlp/python).
     """
     env = QProcessEnvironment.systemEnvironment()
-    profile = _active_profile or ""
+    profile = active_profile() or ""
     if profile:
         env.insert("VONVAKVAS_PROFILE", profile)
     else:
@@ -566,10 +572,6 @@ class CommandRunner(QObject):
         if proc is not None:
             proc.deleteLater()
         self.finished.emit(int(code), self._cmdline)
-
-
-# Initial state: profile persisted in config/gui_state.env (GUI-only)
-_active_profile = _load_active_profile()
 
 
 

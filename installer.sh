@@ -12,6 +12,8 @@
 #
 # Optional environment variables:
 #   INSTALLER_SKIP_PIP=1  does not create the venv nor install dependencies (for testing)
+#
+# Also creates ~/.local/bin/vonvakvas so the CLI can be run from any directory.
 
 set -euo pipefail
 
@@ -157,6 +159,28 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# CLI launcher
+# ---------------------------------------------------------------------------
+# The wrapper points to this installation, including when a custom destination
+# was supplied. An existing command is never overwritten without consent.
+BIN_DIR="${HOME}/.local/bin"
+BIN_FILE="$BIN_DIR/vonvakvas"
+mkdir -p "$BIN_DIR"
+
+if [[ -e "$BIN_FILE" || -L "$BIN_FILE" ]]; then
+    warn "CLI launcher already exists at $BIN_FILE; it was not changed."
+else
+    printf '#!/usr/bin/env bash\nset -e\nexec %q "$@"\n' "$INSTALL_DIR/vonvakvas.sh" > "$BIN_FILE"
+    chmod 755 "$BIN_FILE"
+    log "CLI launcher created: $BIN_FILE"
+fi
+
+case ":${PATH}:" in
+    *":${BIN_DIR}:"*) ;;
+    *) warn "Add $BIN_DIR to your PATH to run 'vonvakvas' from any directory." ;;
+esac
+
+# ---------------------------------------------------------------------------
 # Applications menu shortcut
 # ---------------------------------------------------------------------------
 DESKTOP_DIR="${HOME}/.local/share/applications"
@@ -181,3 +205,4 @@ log "     (export the YouTube cookies in Netscape format)"
 log "  2. Edit the channel list: $CFG/channel_list.txt"
 log "  3. Set up Telegram (optional): $CFG/telegram.env"
 log "  4. Start from the applications menu or run: $INSTALL_DIR/start-gui.sh"
+log "  5. From any directory, run: vonvakvas help (if $BIN_DIR is in PATH)"

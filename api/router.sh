@@ -56,6 +56,9 @@ route_command() {
         mass-organize|mo)
             cmd_mass_organize "$@"
             ;;
+        profile|prof|profiles)
+            cmd_profile "$@"
+            ;;
         help|--help|-h)
             show_help
             ;;

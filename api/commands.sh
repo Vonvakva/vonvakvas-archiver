@@ -308,6 +308,357 @@ cmd_mass_organize() {
 }
 
 # ============================================
+# COMMAND: profile
+# Manages configuration profiles (config/profiles/<name>/) — the same
+# instances the GUI uses. The active profile is persisted in
+# config/gui_state.env (GUI_PROFILE), the key the GUI reads/writes too.
+# Usage: vonvakvas profile [list|use|create|delete|files] [options]
+# ============================================
+
+_profiles_dir()   { echo "$PROJECT_ROOT/config/profiles"; }
+_gui_state_file() { echo "$PROJECT_ROOT/config/gui_state.env"; }
+
+# Same rule as the GUI (gui/backend.py: _PROFILE_NAME_RE)
+_PROFILE_NAME_RE='^[a-zA-Z0-9][a-zA-Z0-9 _-]{0,39}$'
+
+_profile_trim() {
+    local s="$1"
+    s="${s#"${s%%[![:space:]]*}"}"
+    s="${s%"${s##*[![:space:]]}"}"
+    printf '%s' "$s"
+}
+
+# Prints the name-validation error (same messages as the GUI) and returns 0
+# when the name is INVALID; returns 1 when the name is valid.
+_profile_name_error() {
+    local name="$1"
+    if [[ -z "$name" ]]; then
+        echo "Type a name for the profile."
+        return 0
+    fi
+    if [[ ! "$name" =~ $_PROFILE_NAME_RE ]]; then
+        echo "Invalid name. Use letters, numbers, spaces, hyphen or underscore (max. 40 characters, starting with a letter/number)."
+        return 0
+    fi
+    return 1
+}
+
+# True while a project script (download/upload job) is running — the same
+# guard the GUI uses before switching profiles.
+_profile_job_running() {
+    command -v pgrep >/dev/null 2>&1 || return 1
+    local pattern="${PROJECT_ROOT//./\\.}"
+    pgrep -f "$pattern/scripts/" >/dev/null 2>&1
+}
+
+# Persists the active profile in config/gui_state.env (GUI_PROFILE="..."),
+# preserving the other lines (e.g. GUI_THEME). Same KEY="VALUE" format the
+# GUI writes (gui/backend.py _set_env_value), so both sides stay in sync.
+_profile_set_active() {
+    local value="$1"
+    local file tmp line found=0
+    file="$(_gui_state_file)"
+    tmp="$file.tmp.$$"
+    {
+        if [[ -f "$file" ]]; then
+            while IFS= read -r line || [[ -n "$line" ]]; do
+                if [[ "$found" -eq 0 && "${line#"${line%%[![:space:]]*}"}" == GUI_PROFILE* ]]; then
+                    printf 'GUI_PROFILE="%s"\n' "$value"
+                    found=1
+                else
+                    printf '%s\n' "$line"
+                fi
+            done < "$file"
+            [[ "$found" -eq 1 ]] || printf 'GUI_PROFILE="%s"\n' "$value"
+        else
+            printf '# GUI state (active profile / theme). Interface-only file.\n'
+            printf 'GUI_PROFILE="%s"\n' "$value"
+        fi
+    } > "$tmp"
+    mv -f "$tmp" "$file"
+}
+
+_profile_usage() {
+    cat << 'EOF'
+Usage: vonvakvas profile <subcommand> [options]
+
+Subcommands:
+    list                      Lists the profiles ('*' = active)
+    use <name>                Activates a profile (shared with the GUI)
+    use --default             Back to the project default config/
+    create <name> [--no-copy] Creates a profile (copies the base config by default)
+    delete <name>             Deletes a profile (the active one is refused)
+    files [name]              Lists the config files of a profile (default: active)
+
+Notes:
+    * Profiles live in config/profiles/<name>/ — the same storage the GUI uses
+    * The active profile is saved in config/gui_state.env (GUI_PROFILE), so
+      the CLI and the GUI always use the same profile
+    * VONVAKVAS_PROFILE=<name> still overrides everything (per-command)
+EOF
+}
+
+_profile_list() {
+    local pdir active name d
+    local names=()
+    pdir="$(_profiles_dir)"
+    active="${VONVAKVAS_PROFILE:-}"
+
+    echo "=================================================="
+    echo " VONVAKVA'S PROFILES"
+    echo "=================================================="
+    if [[ -n "$active" ]]; then
+        echo "Active profile: $active"
+    else
+        echo "Active profile: (project default config/)"
+    fi
+    echo ""
+
+    if [[ -d "$pdir" ]]; then
+        for d in "$pdir"/*; do
+            [[ -d "$d" ]] && names+=("${d##*/}")
+        done
+    fi
+
+    if [[ ${#names[@]} -eq 0 ]]; then
+        echo "No profiles yet. Create one with: vonvakvas profile create <name>"
+        return 0
+    fi
+
+    printf '%s\n' "${names[@]}" | LC_ALL=C sort | while IFS= read -r name; do
+        if [[ "$name" == "$active" ]]; then
+            printf '  * %s\n' "$name"
+        else
+            printf '    %s\n' "$name"
+        fi
+    done
+    echo ""
+    echo "'*' marks the active profile (shared with the GUI)."
+}
+
+_profile_use() {
+    local force=0 target="" got=0 err
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --force|-f) force=1 ;;
+            --default|--none) target=""; got=1 ;;
+            -*)
+                echo "Error: unknown option '$1'"
+                echo "Usage: vonvakvas profile use <name> [--force] | --default"
+                exit 1
+                ;;
+            *) target="$1"; got=1 ;;
+        esac
+        shift
+    done
+
+    if [[ "$got" -eq 0 ]]; then
+        echo "Error: specify the profile name (or --default)"
+        echo "Usage: vonvakvas profile use <name> [--force] | --default"
+        exit 1
+    fi
+
+    if [[ -n "$target" ]]; then
+        target="$(_profile_trim "$target")"
+        if err="$(_profile_name_error "$target")"; then
+            echo "Error: $err"
+            exit 1
+        fi
+        if [[ ! -d "$(_profiles_dir)/$target" ]]; then
+            echo "Error: profile '$target' not found. Use 'vonvakvas profile list' to see the available ones."
+            exit 1
+        fi
+        if [[ "$force" -eq 0 ]] && _profile_job_running; then
+            echo "Error: a project task is running; wait for it to finish or use --force."
+            exit 1
+        fi
+    fi
+
+    _profile_set_active "$target"
+    if [[ -n "$target" ]]; then
+        echo "Active profile: $target"
+    else
+        echo "Active profile: project default config/"
+    fi
+    echo "(saved in config/gui_state.env — the GUI uses the same profile)"
+}
+
+_profile_create() {
+    local name="" copy=1 err f pdir
+    local copied=()
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --copy) copy=1 ;;
+            --no-copy|--empty) copy=0 ;;
+            -*)
+                echo "Error: unknown option '$1'"
+                echo "Usage: vonvakvas profile create <name> [--no-copy]"
+                exit 1
+                ;;
+            *)
+                if [[ -n "$name" ]]; then
+                    echo "Error: only one profile name at a time."
+                    exit 1
+                fi
+                name="$1"
+                ;;
+        esac
+        shift
+    done
+
+    name="$(_profile_trim "$name")"
+    if err="$(_profile_name_error "$name")"; then
+        echo "Error: $err"
+        exit 1
+    fi
+    if [[ -e "$(_profiles_dir)/$name" ]]; then
+        echo "Error: there is already a profile named '$name'."
+        exit 1
+    fi
+
+    pdir="$(_profiles_dir)/$name"
+    mkdir -p "$pdir"
+
+    if [[ "$copy" -eq 1 ]]; then
+        # Same list the GUI copies (never archive.txt: each profile keeps
+        # its own download history).
+        for f in channel_list.txt cookies_1.txt cookies_2.txt cookies_3.txt telegram.env; do
+            if [[ -f "$PROJECT_ROOT/config/$f" && ! -f "$pdir/$f" ]]; then
+                cp -p "$PROJECT_ROOT/config/$f" "$pdir/$f"
+                copied+=("$f")
+            fi
+        done
+    fi
+
+    echo "Profile created: config/profiles/$name"
+    if [[ "$copy" -eq 1 ]]; then
+        if [[ ${#copied[@]} -gt 0 ]]; then
+            echo "Copied from the project config: ${copied[*]}"
+        else
+            echo "No base config files to copy."
+        fi
+    else
+        echo "Created empty (--no-copy): missing files fall back to the project config/."
+    fi
+}
+
+_profile_delete() {
+    local name="" err
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -*)
+                echo "Error: unknown option '$1'"
+                echo "Usage: vonvakvas profile delete <name>"
+                exit 1
+                ;;
+            *)
+                if [[ -n "$name" ]]; then
+                    echo "Error: only one profile name at a time."
+                    exit 1
+                fi
+                name="$1"
+                ;;
+        esac
+        shift
+    done
+
+    name="$(_profile_trim "$name")"
+    if err="$(_profile_name_error "$name")"; then
+        echo "Error: $err"
+        exit 1
+    fi
+    if [[ "$name" == "${VONVAKVAS_PROFILE:-}" ]]; then
+        echo "Error: cannot delete the active profile '$name'."
+        echo "Switch first: vonvakvas profile use <other>"
+        exit 1
+    fi
+    if [[ ! -d "$(_profiles_dir)/$name" ]]; then
+        echo "Error: profile '$name' not found. Use 'vonvakvas profile list' to see the available ones."
+        exit 1
+    fi
+
+    rm -rf -- "$(_profiles_dir)/$name"
+    echo "Profile deleted: $name"
+}
+
+_profile_files() {
+    local name="" err d
+    local files=()
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -*)
+                echo "Error: unknown option '$1'"
+                echo "Usage: vonvakvas profile files [name]"
+                exit 1
+                ;;
+            *)
+                if [[ -n "$name" ]]; then
+                    echo "Error: only one profile name at a time."
+                    exit 1
+                fi
+                name="$1"
+                ;;
+        esac
+        shift
+    done
+
+    if [[ -z "$name" ]]; then
+        name="${VONVAKVAS_PROFILE:-}"
+    fi
+    if [[ -z "$name" ]]; then
+        echo "Error: no active profile; specify one: vonvakvas profile files <name>"
+        exit 1
+    fi
+
+    name="$(_profile_trim "$name")"
+    if err="$(_profile_name_error "$name")"; then
+        echo "Error: $err"
+        exit 1
+    fi
+    if [[ ! -d "$(_profiles_dir)/$name" ]]; then
+        echo "Error: profile '$name' not found. Use 'vonvakvas profile list' to see the available ones."
+        exit 1
+    fi
+
+    for d in "$(_profiles_dir)/$name"/*; do
+        [[ -f "$d" ]] && files+=("${d##*/}")
+    done
+
+    if [[ ${#files[@]} -eq 0 ]]; then
+        echo "No configuration files in profile '$name' yet."
+        echo "(missing files fall back to the project config/)"
+        return 0
+    fi
+
+    echo "Files in profile '$name':"
+    printf '%s\n' "${files[@]}" | LC_ALL=C sort | while IFS= read -r d; do
+        printf '  %s\n' "$d"
+    done
+}
+
+cmd_profile() {
+    local sub="list"
+    if [[ $# -gt 0 ]]; then
+        sub="$1"
+        shift
+    fi
+
+    case "$sub" in
+        list|ls)             _profile_list "$@" ;;
+        use|activate|switch) _profile_use "$@" ;;
+        create|new)          _profile_create "$@" ;;
+        delete|rm|remove)    _profile_delete "$@" ;;
+        files|show)          _profile_files "$@" ;;
+        help|--help|-h)      _profile_usage ;;
+        *)
+            echo "Error: unknown profile subcommand '$sub'"
+            _profile_usage
+            exit 1
+            ;;
+    esac
+}
+
+# ============================================
 # HELP
 # ============================================
 show_help() {
@@ -383,6 +734,13 @@ COMMANDS:
     mass-organize, mo
         Organizes every channel folder
         Ex: vonvakvas mass-organize
+
+    profile, prof <list|use|create|delete|files>
+        Manages configuration profiles (same storage as the GUI)
+        The active profile is shared with the GUI (config/gui_state.env)
+        Ex: vonvakvas profile list
+        Ex: vonvakvas profile use hdd
+        Ex: vonvakvas profile create travel --no-copy
 
     help, --help, -h
         Shows this help message

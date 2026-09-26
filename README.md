@@ -436,6 +436,28 @@ Batch organizes all subdirectories within the current folder.
 
 **Note:** Respects `.dirignore` rules (folders matching the ignore list are skipped).
 
+### profile (prof)
+
+Manages configuration profiles — the same instances the GUI uses (stored in `config/profiles/<name>/`).
+
+```bash
+./vonvakvas.sh profile list
+./vonvakvas.sh profile use <name>
+./vonvakvas.sh profile create <name> [--no-copy]
+./vonvakvas.sh profile delete <name>
+./vonvakvas.sh profile files [name]
+```
+
+| Subcommand | Description |
+| --- | --- |
+| `list` | Lists the profiles (`*` = active) |
+| `use <name>` | Activates a profile (`--default` returns to the project config/) |
+| `create <name>` | Creates a profile, copying the base config (`--no-copy` to skip) |
+| `delete <name>` | Deletes a profile (the active one is refused) |
+| `files [name]` | Lists the config files inside a profile |
+
+**Shared with the GUI:** the active profile is persisted in `config/gui_state.env` (`GUI_PROFILE`) — the key the GUI reads/writes — so switching a profile on the CLI is picked up by the GUI (and vice versa) without losing anything. `VONVAKVAS_PROFILE=<name>` still overrides per command.
+
 ---
 
 ## Dependencies

@@ -7,6 +7,12 @@ variável de ambiente VONVAKVAS_PROFILE — os mesmos comandos vonvakvas
 continuam funcionando no terminal com:
 
     VONVAKVAS_PROFILE=nome ./vonvakvas.sh mass-archive
+
+A mesma lista é gerenciável pela CLI, com a mesma persistência
+(config/gui_state.env -> GUI_PROFILE), então nada se perde entre os dois:
+
+    vonvakvas profile list
+    vonvakvas profile use nome
 """
 
 from __future__ import annotations
